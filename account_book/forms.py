@@ -17,6 +17,6 @@ class AccountInputForm(FlaskForm):
     #dummy_catgory = [('category' 'Food'), ('category', 'Household good'), ('category', 'Rent')]
     category = SelectField('Category', choices=dummy_catgory)
     comment = StringField('Comment', validators=[DataRequired()])
-    tax_rate = FloatField('Tax rate', default=0.8)
+    tax_rate = FloatField('Tax rate',default=0.8, render_kw={"placeholder": "Tax Rate"})
     tax_bool = BooleanField('Tax')
     submit = SubmitField('Submit')
