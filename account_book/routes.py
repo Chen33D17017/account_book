@@ -1,6 +1,6 @@
 from flask import render_template, request, url_for, redirect
 from account_book import app
-from account_book.forms import LoginForm, AccountInputForm, CategoryInputForm
+from account_book.forms import LoginForm, AccountInputForm, CategoryInputForm, RegistrationForm
 
 dummy_catgory = [( 1,'Food'), ( 2, 'Household good'), ( 3, 'Rent')]
 
@@ -40,7 +40,16 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         return redirect(url_for('home'))
-    return render_template('login.html', form=form, title="login")
+    return render_template('login.html', form=form, title="Login")
+
+
+@app.route("/register")
+def register():
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        return rediect(url_for('login'))
+    return render_template('register.html', form=form, title="Registration")
+
 
 # @app.route("/home")
 # def home():

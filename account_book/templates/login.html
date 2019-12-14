@@ -9,7 +9,7 @@
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 	<!-- <link rel="stylesheet" type="text/css" href={{ url_for('static', filename="CSS/login.css" )}}> -->
 	<link rel="stylesheet" type="text/css" href="../static/CSS/login.css">
-	<title>Login</title>
+	<title>{{title}}</title>
     </head>
     <body>
 	<div class="container">
@@ -22,20 +22,20 @@
 			<div class="card-body">
 			    <form>
 				<div class="form-group">
-				    {{ form.username.label(class="form=control-lable") }}
-				    {% if form.username.errors %}
-				    {{ form.username(class="form-control form-control-lg is-invalid") }}
+				    {{ form.userAccount.label(class="form=control-lable") }}
+				    {% if form.userAccount.errors %}
+				    {{ form.userAccount(class="form-control form-control-lg is-invalid") }}
 				    <div class="invalid-feedback">
-					{% for error in form.username.errors %}
+					{% for error in form.userAccount.errors %}
 					<span> {{ error }}</span>
 					{% endfor%}
 				    </div>
 				    {% else %}
-				    {{ form.username(class="form-control form-control-lg") }}
+				    {{ form.userAccount(class="form-control form-control-lg") }}
 				    {% endif %}
 				    <!-- <label for="InputAccount">Account</label> -->
 				    <!-- <input type="text" class="form-control" id="InputAccount" aria-describedby="loginHelp"> -->
-				    <small id="loginHelp" class="form-text text-muted"><a href="register.html">Register</a> if you do not have account.</small>
+				    <small id="loginHelp" class="form-text text-muted"><a href="{{url_for('register')}}">Register</a> if you do not have account.</small>
 				</div>
 				<div class="form-group">
 				    <!-- <label for="login-password">Password</label> -->
