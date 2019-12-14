@@ -1,0 +1,17 @@
+body{
+    background-image: url(../PIC/login/background.jpg);
+    background-size: cover;
+    background-color: #000000;
+}
+
+.card-header-color{
+    background-color: #87CEFA;
+}
+
+html, body {
+    height: 100%;
+}
+
+.container {
+    height: 100%;
+}

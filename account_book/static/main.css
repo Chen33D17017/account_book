@@ -31,11 +31,32 @@ h1, h2, h3, h4, h5, h6 {
   border-radius: 3px;
   margin-bottom: 20px;
 }
+.align-center{
+    text-align: center;
+}
+
+.file-field-align {
+    padding: 10px 0px;
+}
+.green-border {
+        border: 3px solid green;
+}
+
+.content-collapse {
+  background: #ffffff;
+  padding: 10px 10px;
+  margin-bottom: 10px;
+}
 
 .article-title {
   color: #444444;
 }
 
+.width-max{
+  width: 80%;
+  border: 3px solid green;
+  margin-bottom: 2px;
+}
 a.article-title:hover {
   color: #428bca;
   text-decoration: none;
@@ -78,3 +99,32 @@ a.article-title:hover {
 .account-heading {
   font-size: 2.5rem;
 }
+
+/* new from here */
+
+.wrapper {
+    display: flex;
+    width: 100%;
+}
+.wrapper #sidebar h3{
+    color: #fc0388;
+    padding: 0px 10px;
+}
+
+#sidebar {
+    width: 250px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 1;
+    background: #7386D5;
+    color: #fff;
+    transition: all 0.3s;
+    padding: 0px 10px;
+}
+
+.wrapper #sidebar button{
+    width: 100%;
+}
+

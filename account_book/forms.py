@@ -1,6 +1,9 @@
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, IntegerField, SelectField, FloatField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
+from wtforms.fields.html5 import DateField
+
 #from flask_login import current_user
 
 class LoginForm(FlaskForm):
@@ -11,12 +14,17 @@ class LoginForm(FlaskForm):
 
 class AccountInputForm(FlaskForm):
     amount = IntegerField('Amount', validators=[DataRequired()])
-    # For SelectField: list of tuple
-    # The first tuple member is the value that'll actually be submitted to your form and the second is the text that'll show to the end user.
-    dummy_catgory = ['Food', 'Household good', 'Rent']
-    #dummy_catgory = [('category' 'Food'), ('category', 'Household good'), ('category', 'Rent')]
-    category = SelectField('Category', choices=dummy_catgory)
+    # dummy_catgory = [('food','Food'), ('household good', 'Household good'), ('rent', 'Rent')]
+    # category = SelectField('Category', choices=dummy_catgory)
+    category = SelectField('Category')
     comment = StringField('Comment', validators=[DataRequired()])
-    tax_rate = FloatField('Tax rate',default=0.8, render_kw={"placeholder": "Tax Rate"})
+    tax_rate = FloatField('Tax rate',default=0.08, render_kw={"placeholder": "Tax Rate"})
     tax_bool = BooleanField('Tax')
+    date = DateField('Date', validators=[DataRequired()])
     submit = SubmitField('Submit')
+
+class CategoryInputForm(FlaskForm):
+    category = StringField('Category', validators=[DataRequired()], render_kw={"placeholder" : "New Category"})
+    picture = FileField('Picture: ', validators=[FileAllowed(['jpg', 'png'])])
+    submit = SubmitField('Add Category')
+    
