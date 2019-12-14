@@ -220,7 +220,7 @@ a.article:hover {
     padding: 20px;
     min-height: 100vh;
     transition: all 0.3s;
-    background-image: url(../PIC/polygonal-background.jpg);
+    background-image: url(../PIC/layout/polygonal-background.jpg);
     background-size: cover;
     background-color: #000050;
 }

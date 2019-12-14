@@ -51,6 +51,10 @@ def register():
     return render_template('register.html', form=form, title="Registration")
 
 
+@app.route("/test")
+def home():
+    return render_template('hello.html', title="hello")
+
 # @app.route("/home")
 # def home():
 #     return render_template('home.html')

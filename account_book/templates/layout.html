@@ -6,12 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-    <title>Account Book</title>
+    <title>Account Book- {{title}}</title>
 
     <!-- Bootstrap CSS CDN -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
     <!-- Our Custom CSS -->
-    <link rel="stylesheet" href="CSS/layout.css">
+    <link rel="stylesheet" href="../static/CSS/layout.css">
 
     <!-- Font Awesome JS -->
     <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/solid.js" integrity="sha384-tzzSw1/Vo+0N5UhStP3bvwWPq+uvzCMfrN1fEFe+xBmv1C/AtVX5K0uZtmcHitFZ" crossorigin="anonymous"></script>
@@ -29,7 +29,7 @@
                 <strong>AB</strong>
             </div>
 
-	    <img src="./PIC/dio.jpg" alt="user_img" class="user-img"/>
+	    <img src="../static/PIC/layout/dio.jpg" alt="user_img" class="user-img"/>
             <ul class="list-unstyled components">
                 <li>
                     <a href="#">
@@ -59,8 +59,8 @@
             <nav class="navbar navbar-expand-lg navbar-light bg-light">
                 <div class="container-fluid">
 		    <a id="sidebarCollapse" href="#">
-			<img src="PIC/small-plane.png" width="40px" height="40px" style="display:none" />
-			<img src="PIC/color-small-plane.png" width="40px" height="40px"/>
+			<img src="../static/PIC/layout/small-plane.png" width="40px" height="40px" style="display:none" />
+			<img src="../static/PIC/layout/color-small-plane.png" width="40px" height="40px"/>
 			<label class="font-weight-bold">Menu</label>
 		    </a>
                     <button class="btn btn-dark d-inline-block d-lg-none ml-auto" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -86,11 +86,10 @@
                     </div>
                 </div>
             </nav>
-
 	    <!-- main content -->
-
-	    <p>Hello World</p>
-            <div class="line"></div>
+	    {% block content %}{% endblock %}
+	    <!-- <p>Hello World</p> -->
+            <!-- <div class="line"></div> -->
     </div>
 
     <!-- jQuery CDN - Slim version (=without AJAX) -->

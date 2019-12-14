@@ -20,7 +20,8 @@
 			    Login
 			</div>
 			<div class="card-body">
-			    <form>
+			    <form method="POST" action="">
+				{{ form.hidden_tag() }}
 				<div class="form-group">
 				    {{ form.userAccount.label(class="form=control-lable") }}
 				    {% if form.userAccount.errors %}
