@@ -1,8 +1,11 @@
 from flask import render_template, request, url_for, redirect
 from account_book import app
-from account_book.forms import LoginForm, BillInputForm, NewCategoryForm, RegistrationForm, EditBillForm
+from account_book.forms import LoginForm, BillInputForm, NewCategoryForm, RegistrationForm, EditBillForm, SearchBillForm
 
 dummy_category = [( 1,'Food'), ( 2, 'Household good'), ( 3, 'Rent')]
+dummy_year = [(0, '-'), (1, '2019'), (2, '2018')]
+dummy_month = [(0, '-'), (1, '11'), (2, '12')]
+
 
 accounts = [
     {
@@ -85,4 +88,17 @@ def add_bill():
         return redirect(url_for('add_bill'))
     return render_template('add_bill.html', form=form, c_form=c_form, \
                            bills=bill_bracket, title="Add Bill")
+
+@app.route("/search_bill")
+def search_bill():
+    form = SearchBillForm()
+    form.category.choices = dummy_category
+    form.year.choices = dummy_year
+    form.month.choices = dummy_month
+    bill_bracket = []
+    for i in dummy_bill:
+        tmp = EditBillForm(i['id'], i['cost'], i['category'], i['comment'], i['date'])
+        tmp.category.choices = dummy_category
+        bill_bracket.append(tmp)
+    return render_template('search_bill.html', form=form, bills=bill_bracket, title='Search Bill')
 

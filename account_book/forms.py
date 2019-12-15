@@ -62,6 +62,14 @@ class EditBillForm(FlaskForm):
     tax_rate = FloatField('Tax rate',default=0.08, render_kw={"placeholder": "Tax Rate"})
     tax_bool = BooleanField('Tax')
     date = DateField('Date', validators=[DataRequired()])
-    submit = SubmitField('Add')
-        
+    submit = SubmitField('Update')
+
+
+class SearchBillForm(FlaskForm):
+    category = SelectField('Category')
+    date = DateField('Date')
+    year = SelectField('Year')
+    month = SelectField('Month')
+    submit = SubmitField('Search')
+    
         
