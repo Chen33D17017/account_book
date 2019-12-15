@@ -1,130 +1,23 @@
-body {
-  background: #fafafa;
-  color: #333333;
-  margin-top: 5rem;
+/* Blue color for heading */
+#headingOne, .modal-color-header{
+    background-color: #87CEFA;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  color: #444444;
+#add-bill{
+    background: #fff;
+    border-radius: 5px 5px 20px 20px;
+    border: 2px solid #DDDDDD;
 }
 
-.bg-steel {
-  background-color: #5f788a;
+.bill-container{
+    background-color: #FFFFFF;
+    border: 2px solid #DDDDDD;
 }
 
-.site-header .navbar-nav .nav-link {
-  color: #cbd5db;
+table tbody tr:hover{
+    background-color: #DDDDDD;
 }
 
-.site-header .navbar-nav .nav-link:hover {
-  color: #ffffff;
+#headingOne h2 button{
+    text-decoration: none;
 }
-
-.site-header .navbar-nav .nav-link.active {
-  font-weight: 500;
-}
-
-.content-section {
-  background: #ffffff;
-  padding: 10px 20px;
-  border: 1px solid #dddddd;
-  border-radius: 3px;
-  margin-bottom: 20px;
-}
-.align-center{
-    text-align: center;
-}
-
-.file-field-align {
-    padding: 10px 0px;
-}
-.green-border {
-        border: 3px solid green;
-}
-
-.content-collapse {
-  background: #ffffff;
-  padding: 10px 10px;
-  margin-bottom: 10px;
-}
-
-.article-title {
-  color: #444444;
-}
-
-.width-max{
-  width: 80%;
-  border: 3px solid green;
-  margin-bottom: 2px;
-}
-a.article-title:hover {
-  color: #428bca;
-  text-decoration: none;
-}
-
-.article-content {
-  white-space: pre-line;
-}
-
-.article-img {
-  height: 65px;
-  width: 65px;
-  margin-right: 16px;
-}
-
-.article-metadata {
-  padding-bottom: 1px;
-  margin-bottom: 4px;
-  border-bottom: 1px solid #e3e3e3
-}
-
-.article-metadata a:hover {
-  color: #333;
-  text-decoration: none;
-}
-
-.article-svg {
-  width: 25px;
-  height: 25px;
-  vertical-align: middle;
-}
-
-.account-img {
-  height: 125px;
-  width: 125px;
-  margin-right: 20px;
-  margin-bottom: 16px;
-}
-
-.account-heading {
-  font-size: 2.5rem;
-}
-
-/* new from here */
-
-.wrapper {
-    display: flex;
-    width: 100%;
-}
-.wrapper #sidebar h3{
-    color: #fc0388;
-    padding: 0px 10px;
-}
-
-#sidebar {
-    width: 250px;
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    z-index: 1;
-    background: #7386D5;
-    color: #fff;
-    transition: all 0.3s;
-    padding: 0px 10px;
-}
-
-.wrapper #sidebar button{
-    width: 100%;
-}
-

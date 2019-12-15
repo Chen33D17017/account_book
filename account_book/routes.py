@@ -1,38 +1,46 @@
 from flask import render_template, request, url_for, redirect
 from account_book import app
-from account_book.forms import LoginForm, AccountInputForm, CategoryInputForm, RegistrationForm
+from account_book.forms import LoginForm, BillInputForm, NewCategoryForm, RegistrationForm, EditBillForm
 
-dummy_catgory = [( 1,'Food'), ( 2, 'Household good'), ( 3, 'Rent')]
+dummy_category = [( 1,'Food'), ( 2, 'Household good'), ( 3, 'Rent')]
 
 accounts = [
-        {
+    {
         'user': 'admin',
         'password': 'admin'
-        },
-        {
+    },
+    {
         'user': 'chen',
         'password': 'chen'
-        }
+    }
 ]
 
 dummy_bill = [
-        {
+    {
+        'id': '1',
         'user' : 'Chen',
         'date' : '2020-11-20',
         'category' : 'Food',
-        'category_pics' : 'food.png',
-        'amount' : '500',
+        'cost' : '500',
         'comment' : 'Mcdonald'
-        },
-        {
+    },
+    {
+        'id':'2',
         'user' : 'Chen',
         'date' : '2020-11-19',
-        'category_pics' : 'food.png',
-        'category' : 'Food',
-        'amount' : '600',
+        'category' : 'Rent',
+        'cost' : '600',
         'comment' : 'KFC'
-        }
-        ]
+    },
+    {
+        'id':'3',
+        'user' : 'Chen',
+        'date' : '2020-11-12',
+        'category' : 'Food',
+        'cost' : '600',
+        'comment' : 'MOS Burger'
+    }
+]
 
 @app.route("/", methods=['GET', 'POST'])
 @app.route("/login")
@@ -59,16 +67,22 @@ def home():
 # def home():
 #     return render_template('home.html')
 
-# @app.route("/add_bill", methods=['GET', 'POST'])
-# def add_bill():
-#     form = AccountInputForm()
-#     c_form = CategoryInputForm()
-#     form.category.choices = dummy_catgory
-#     if form.validate_on_submit():
-#         return redirect(url_for('home'))
-#     if c_form.validate_on_submit():
-#         dummy_catgory.append((len(dummy_catgory)+1, form.category.data))
-#         return redirect(url_for('add_bill'))
-#     return render_template('add_bill.html', form=form, c_form=c_form, \
-#             bills=dummy_bill, title="Add Bill")
+@app.route("/add_bill", methods=['GET', 'POST'])
+def add_bill():
+    form = BillInputForm()
+    c_form = NewCategoryForm()
+    form.category.choices = dummy_category
+    bill_bracket = []
+    for i in dummy_bill:
+        tmp = EditBillForm(i['id'], i['cost'], i['category'], i['comment'], i['date'])
+        tmp.category.choices = dummy_category
+        bill_bracket.append(tmp)
+        
+    if form.validate_on_submit():
+        return redirect(url_for('home'))
+    if c_form.validate_on_submit():
+        dummy_catgory.append((len(dummy_catgory)+1, form.category.data))
+        return redirect(url_for('add_bill'))
+    return render_template('add_bill.html', form=form, c_form=c_form, \
+                           bills=bill_bracket, title="Add Bill")
 

@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, IntegerField, SelectField, FloatField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, IntegerField, SelectField, FloatField, TextField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from wtforms.fields.html5 import DateField
 
@@ -33,19 +33,35 @@ class RegistrationForm(FlaskForm):
     #     if user:
     #         raise ValidationError('That username is taken. Please choose another name')
     
-class AccountInputForm(FlaskForm):
-    amount = IntegerField('Amount', validators=[DataRequired()])
-    # dummy_catgory = [('food','Food'), ('household good', 'Household good'), ('rent', 'Rent')]
-    # category = SelectField('Category', choices=dummy_catgory)
+class BillInputForm(FlaskForm):
+    cost = IntegerField('Cost', validators=[DataRequired()], render_kw={"placeholder": "$"})
     category = SelectField('Category')
-    comment = StringField('Comment', validators=[DataRequired()])
+    comment = StringField('Comment', validators=[DataRequired()], render_kw={"placeholder": "Dinner: KFC"})
     tax_rate = FloatField('Tax rate',default=0.08, render_kw={"placeholder": "Tax Rate"})
     tax_bool = BooleanField('Tax')
     date = DateField('Date', validators=[DataRequired()])
     submit = SubmitField('Submit')
 
-class CategoryInputForm(FlaskForm):
-    category = StringField('Category', validators=[DataRequired()], render_kw={"placeholder" : "New Category"})
-    picture = FileField('Picture: ', validators=[FileAllowed(['jpg', 'png'])])
-    submit = SubmitField('Add Category')
+class NewCategoryForm(FlaskForm):
+    category = StringField('New :', validators=[DataRequired()], render_kw={"placeholder" : "Category"})
+    submit = SubmitField('Add')
+
     
+class EditBillForm(FlaskForm):
+    def __init__(self, index, cost, category, comment, date, **kw):
+        super(EditBillForm, self).__init__(**kw)
+        self.index_value = index
+        self.cost_value = cost
+        self.category_value = category
+        self.comment_value = comment
+        self.date_value = date
+
+    cost = IntegerField("COST",validators=[DataRequired()], render_kw={"placeholder": "$"})
+    category = SelectField('Category')
+    comment = TextField('Comment', validators=[DataRequired()], render_kw={"placeholder": "Dinner: KFC"})
+    tax_rate = FloatField('Tax rate',default=0.08, render_kw={"placeholder": "Tax Rate"})
+    tax_bool = BooleanField('Tax')
+    date = DateField('Date', validators=[DataRequired()])
+    submit = SubmitField('Add')
+        
+        
