@@ -9,6 +9,12 @@
     border: 2px solid #DDDDDD;
 }
 
+.form-container{
+    background: #fff;
+    border-radius: 5px 5px 20px 20px;
+    border: 2px solid #DDDDDD;
+}
+
 .bill-container{
     background-color: #FFFFFF;
     border: 2px solid #DDDDDD;

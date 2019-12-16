@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, IntegerField, SelectField, FloatField, TextField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, IntegerField, SelectField, FloatField, TextField, IntegerField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from wtforms.fields.html5 import DateField
 
@@ -73,3 +73,27 @@ class SearchBillForm(FlaskForm):
     submit = SubmitField('Search')
     
         
+class UserProfileForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired()])
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    month_budget = IntegerField('Month Budget', validators=[DataRequired()])
+    picture = FileField('Update Profile Picture', validators=[FileAllowed(['jpg', 'png'])])
+    slack_token = StringField('Slack Token')
+    submit = SubmitField('Update')
+    # def validate_username(serf, username):
+    #     if username.data != current_user.username:
+    #         user = User.query.filter_by(username=username.data).first()
+    #         if user:
+    #             raise ValidationError('That username is taken. Please choose another name')
+
+    # def validate_email(self, email):
+    #     if email.data != current_user.email:
+    #         user = User.query.filter_by(email=email.data).first()
+    #         if user:
+    #             raise ValidationError('That username is taken. Please choose another name')
+
+class ChangePasswordForm(FlaskForm):
+    password = PasswordField('Password', validators=[DataRequired()])
+    confirm_password = PasswordField('Confirm Password', 
+            validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField('Update')

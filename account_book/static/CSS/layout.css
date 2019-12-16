@@ -78,6 +78,15 @@ span {
     border-radius: 50%;
 }
 
+.user-img{
+    height: 200px;
+    width: 200px;
+    display: block;
+    margin: auto;
+    margin-bottom: 10px;
+    border-radius: 50%;
+}
+
 
 #sidebar.active {
     min-width: 80px;

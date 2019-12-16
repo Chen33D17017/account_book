@@ -1,0 +1,149 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="container-fluid">
+    <!-- Dropdown -->
+
+    <div class="card">
+	<div class="card-header" id="headingOne">
+	    <h2 class="mb-0">
+		<legend>User Profile</legend>
+	    </h2>
+	</div>
+    </div>
+    <form method="POST" action="">
+	<div class="form-group card-body card-background form-container">
+	    <div class="row justify-content-md-center">
+		<div class="col-md-3 pl-0 pr-0">
+		    <img src="../static/PIC/layout/dio.jpg" alt="user_img" class="user-img"/>
+		</div>
+		<div class="col-md-9">
+		    <div class="row">
+			<div class="add-bill-item col-md-4">
+			    {{ user_form.username.label(class="form-control-lable") }}
+			    {% if user_form.username.errors %}
+			    {{ user_form.username(class="form-control is-invalid") }}
+			    <div class="invalid-feedback">
+				{% for error in user_form.username.errors %}
+				<span> {{ error }}</span>
+				{% endfor%}
+			    </div>
+			    {% else %}
+			    {{ user_form.username(class="form-control", value=user['username']) }}
+			    {% endif %}
+			</div>
+			<div class="add-bill-item col-md-4">
+			    {{ user_form.month_budget.label(class="form-control-lable") }}
+			    {% if user_form.month_budget.errors %}
+			    {{ user_form.month_budget(class="form-control is-invalid") }}
+			    <div class="invalid-feedback">
+				{% for error in user_form.month_budget.errors %}
+				<span> {{ error }}</span>
+				{% endfor%}
+			    </div>
+			    {% else %}
+			    {{ user_form.month_budget(class="form-control", value=user['month_budget']) }}
+			    {% endif %}
+			</div>
+		    </div>
+		    <div class="add-bill-item col-md-8 pl-0 pr-0">
+			{{ user_form.email.label(class="form-control-lable") }}
+			{% if user_form.email.errors %}
+			{{ user_form.email(class="form-control is-invalid") }}
+			<div class="invalid-feedback">
+			    {% for error in user_form.email.errors %}
+			    <span> {{ error }}</span>
+			    {% endfor%}
+			</div>
+			{% else %}
+			{{ user_form.email(class="form-control", value=user['email']) }}
+			{% endif %}
+		    </div>
+		    <div class="add-bill-item col-md-8 pl-0 pr-0">
+			{{ user_form.slack_token.label(class="form-control-lable") }}
+			{% if user_form.slack_token.errors %}
+			{{ user_form.slack_token(class="form-control is-invalid") }}
+			<div class="invalid-feedback">
+			    {% for error in user_form.slack_token.errors %}
+			    <span> {{ error }}</span>
+			    {% endfor%}
+			</div>
+			{% else %}
+			{{ user_form.slack_token(class="form-control") }}
+			{% endif %}
+		    </div>
+		    <div class="form-group">
+                        {{ user_form.picture.label() }}
+                        {{ user_form.picture(class="form-control-file") }}
+                        {% if user_form.picture.errors %}
+                        {% for error in user_form.picture.errors %}
+                        <span class="text-danger">{{ error }}</span> </br>
+                        {% endfor %}
+                        {% endif %}
+                    </div>
+		</div>
+	    </div>
+	    <div style="padding-top:15px;">
+		<button type="button" class="btn btn-outline-danger" data-toggle="modal" data-target="#ChangePasswordModal">Change Password</button>
+		{{ user_form.submit(class="btn btn-outline-primary") }}
+	    </div>
+	    <!-- Change Password Modal -->
+	    <div class="modal fade" id="ChangePasswordModal" tabindex="-1" role="dialog" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+		    <div class="modal-content">
+			<div class="modal-header">
+			    <h5 class="modal-title" id="exampleModalLabel">Change Password</h5>
+			    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			    </button>
+			</div>
+			<div class="modal-body">
+			    <form method="POST" action="">
+				{{ password_form.hidden_tag()}}
+				<div class="form-group">
+				    {{ password_form.password.label(class="form=control-lable") }}
+				    {% if password_form.password.errors %}
+				    {{ password_form.password(class="form-control form-control-lg is-invalid") }}
+				    <div class="invalid-feedback">
+					{% for error in password_form.password.errors %}
+					<span> {{ error }}</span>
+					{% endfor%}
+				    </div>
+				    {% else %}
+				    {{ password_form.password(class="form-control form-control-lg") }}
+				    {% endif %}
+				    <!-- <label for="register-password">Password</label> -->
+				    <!-- <input type="password" class="form-control" id="register-password"> -->
+				</div>
+				<div class="form-group">
+				    {{ password_form.confirm_password.label(class="form=control-lable") }}
+				    {% if password_form.confirm_password.errors %}
+				    {{ password_form.confirm_password(class="form-control form-control-lg is-invalid") }}
+				    <div class="invalid-feedback">
+					{% for error in password_form.confirm_password.errors %}
+					<span> {{ error }}</span>
+					{% endfor%}
+				    </div>
+				    {% else %}
+				    {{ password_form.confirm_password(class="form-control form-control-lg") }}
+				    {% endif %}
+				
+			</div>
+			<div class="modal-footer">
+			    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+			    {{ password_form.submit(class="btn btn-danger") }}
+			    <!-- <button type="button" class="btn btn-danger">Update</button> -->
+			</div>
+		    </div>
+		</div>
+	    </div>
+    </form>
+	</div>
+</div>
+
+<!-- TODO: Setting Default value for select tags -->
+<!-- <script>
+     $("select").each(function(){ $(this).find('option[value="'+$(this).attr("value")+'"]').prop('selected', true); });
+     </script> -->
+
+{% endblock content%}

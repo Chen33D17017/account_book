@@ -1,6 +1,6 @@
 from flask import render_template, request, url_for, redirect
 from account_book import app
-from account_book.forms import LoginForm, BillInputForm, NewCategoryForm, RegistrationForm, EditBillForm, SearchBillForm
+from account_book.forms import LoginForm, BillInputForm, NewCategoryForm, RegistrationForm, EditBillForm, SearchBillForm, UserProfileForm, ChangePasswordForm
 
 dummy_category = [( 1,'Food'), ( 2, 'Household good'), ( 3, 'Rent')]
 dummy_year = [(0, '-'), (1, '2019'), (2, '2018')]
@@ -17,6 +17,13 @@ accounts = [
         'password': 'chen'
     }
 ]
+
+
+dummy_user = {
+    'username' : 'Chen',
+    'month_budget' : 120000,
+    'email' : 'xxxxxx@gmail.com'
+}
 
 dummy_bill = [
     {
@@ -101,4 +108,16 @@ def search_bill():
         tmp.category.choices = dummy_category
         bill_bracket.append(tmp)
     return render_template('search_bill.html', form=form, bills=bill_bracket, title='Search Bill')
+
+@app.route("/user_profile")
+def user_profile():
+    user_form = UserProfileForm()
+    password_form = ChangePasswordForm()
+    if user_form.validate_on_submit():
+        return redirect(url_for('user_profile'))
+    if password_form.validate_on_submit():
+        return redirect(url_for('user_profile'))
+    # TODO: Direct to the home page
+    return render_template('user_profile.html', user_form=user_form, \
+                           password_form=password_form, title="User Profile", user=dummy_user)
 
