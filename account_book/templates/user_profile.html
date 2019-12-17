@@ -127,23 +127,23 @@
 				    {% else %}
 				    {{ password_form.confirm_password(class="form-control form-control-lg") }}
 				    {% endif %}
-				
-			</div>
-			<div class="modal-footer">
-			    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-			    {{ password_form.submit(class="btn btn-danger") }}
-			    <!-- <button type="button" class="btn btn-danger">Update</button> -->
+				    
+				</div>
+				<div class="modal-footer">
+				    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+				    {{ password_form.submit(class="btn btn-danger") }}
+				    <!-- <button type="button" class="btn btn-danger">Update</button> -->
+				</div>
+			    </form>
 			</div>
 		    </div>
 		</div>
 	    </div>
-    </form>
 	</div>
+    </form>
 </div>
-
-<!-- TODO: Setting Default value for select tags -->
-<!-- <script>
-     $("select").each(function(){ $(this).find('option[value="'+$(this).attr("value")+'"]').prop('selected', true); });
-     </script> -->
-
-{% endblock content%}
+	<!-- TODO: Setting Default value for select tags -->
+	<!-- <script>
+	     $("select").each(function(){ $(this).find('option[value="'+$(this).attr("value")+'"]').prop('selected', true); });
+	     </script> -->
+	{% endblock content%}

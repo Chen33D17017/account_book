@@ -69,13 +69,10 @@ def register():
     return render_template('register.html', form=form, title="Registration")
 
 
-@app.route("/test")
+@app.route("/home")
 def home():
-    return render_template('hello.html', title="hello")
+    return render_template('home.html')
 
-# @app.route("/home")
-# def home():
-#     return render_template('home.html')
 
 @app.route("/add_bill", methods=['GET', 'POST'])
 def add_bill():
@@ -96,6 +93,7 @@ def add_bill():
     return render_template('add_bill.html', form=form, c_form=c_form, \
                            bills=bill_bracket, title="Add Bill")
 
+
 @app.route("/search_bill")
 def search_bill():
     form = SearchBillForm()
@@ -108,6 +106,7 @@ def search_bill():
         tmp.category.choices = dummy_category
         bill_bracket.append(tmp)
     return render_template('search_bill.html', form=form, bills=bill_bracket, title='Search Bill')
+
 
 @app.route("/user_profile")
 def user_profile():

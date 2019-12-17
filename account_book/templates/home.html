@@ -1,0 +1,180 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js"></script>
+
+<script type="text/javascript"
+        src="{{ url_for('static', filename='justgage.js') }}"></script>
+<script type="text/javascript"
+        src="{{ url_for('static', filename='raphael-2.1.4.min.js') }}"></script>
+
+
+<div class="container">
+    <div class="graph-container">
+	<div class="pt-3">
+	    <h3>Your limitation</h3>
+	</div>
+	<div class="row justify-content-center" id="justgage-container">
+	    <div class="col-md-4">
+		<div id="day-gauge" class="200x160px"></div>
+	    </div>
+	    <div class="col-md-4">
+		<div id="week-gauge" class="200x160px"></div>
+	    </div>
+	    <div class="col-md-4">
+		<div id="month-gauge" class="200x160px"></div>
+	    </div>
+	</div>
+    </div>
+
+    <div class="graph-container mt-20">
+	<div class="pt-3">
+	    <h3>Situation</h3>
+	</div>
+	<div class="row justify-content-center" id="justgage-container">
+	    <div class="col-md-6">
+		<canvas id="day-cost"></canvas>
+	    </div>
+	    <div class="col-md-6">
+		<canvas id="month-cost"></canvas>
+	    </div>
+	</div>
+    </div>
+
+    <div class="graph-container mt-20">
+	<div class="pt-3">
+	    <h3>Usage</h3>
+	</div>
+	<div class="row justify-content-center">
+	    <div class="col-md-6">
+		<canvas id="cost-usage"></canvas>
+	    </div>
+	</div>
+    </div>
+</div>
+
+</div>
+<!-- END container -->
+</div>
+
+
+
+<!-- gagestaff -->
+<script>
+ var g = new JustGage({
+     id: "test",
+     value: 67,
+     min: 0,
+     max: 100,
+     title: "Day"
+ });
+</script>
+
+
+<script>
+ var g = new JustGage({
+     id: "day-gauge",
+     value: 2000,
+     min: 0,
+     max: 120000 / 30,
+     title: "Day"
+ });
+</script>
+
+<script>
+ var g = new JustGage({
+     id: "week-gauge",
+     value: 8000,
+     min: 0,
+     max: 120000 / 4,
+     title: "Week"
+ });
+</script>
+
+<script>
+ var g = new JustGage({
+     id: "month-gauge",
+     value: 80000,
+     min: 0,
+     max: 120000,
+     title: "Month"
+ });
+</script>
+
+<!-- Chat stuff -->
+<script>
+ var ctx = document.getElementById('day-cost').getContext('2d');
+ var chart = new Chart(ctx, {
+     // The type of chart we want to create
+     type: 'line',
+
+     // The data for our dataset
+     data: {
+         labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+         datasets: [{
+             label: 'My First dataset',
+             backgroundColor: 'rgb(255, 99, 132)',
+             borderColor: 'rgb(255, 99, 132)',
+             data: [0, 10, 5, 2, 20, 30, 45]
+         }]
+     },
+
+     // Configuration options go here
+     options: {}
+ });
+</script>
+
+<script>
+ var ctx = document.getElementById('month-cost').getContext('2d');
+ var chart = new Chart(ctx, {
+     // The type of chart we want to create
+     type: 'line',
+
+     // The data for our dataset
+     data: {
+         labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+         datasets: [{
+             label: 'My First dataset',
+             backgroundColor: 'rgb(255, 99, 132)',
+             borderColor: 'rgb(255, 99, 132)',
+             data: [0, 10, 5, 2, 20, 30, 45]
+         }]
+     },
+
+     // Configuration options go here
+     options: {}
+ });
+</script>
+
+<script>
+ var oilCanvas = document.getElementById("cost-usage");
+
+ var oilData = {
+     labels: [
+	 "Saudi Arabia",
+	 "Russia",
+	 "Iraq",
+	 "United Arab Emirates",
+	 "Canada"
+     ],
+     datasets: [
+	 {
+	     data: [133.3, 86.2, 52.2, 51.2, 50.2],
+	     backgroundColor: [
+		 "#FF6384",
+		 "#63FF84",
+		 "#84FF63",
+		 "#8463FF",
+		 "#6384FF"
+	     ]
+	 }]
+ };
+
+ var pieChart = new Chart(oilCanvas, {
+     type: 'doughnut',
+     data: oilData
+ });
+</script>
+
+{% endblock content%}
