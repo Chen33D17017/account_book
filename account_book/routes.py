@@ -18,7 +18,6 @@ accounts = [
     }
 ]
 
-
 dummy_user = {
     'username' : 'Chen',
     'month_budget' : 120000,
@@ -51,6 +50,14 @@ dummy_bill = [
         'comment' : 'MOS Burger'
     }
 ]
+
+
+@app.context_processor
+def categories_list():
+    return dict(
+        categories = dummy_category
+    )
+
 
 @app.route("/", methods=['GET', 'POST'])
 @app.route("/login")
@@ -119,4 +126,14 @@ def user_profile():
     # TODO: Direct to the home page
     return render_template('user_profile.html', user_form=user_form, \
                            password_form=password_form, title="User Profile", user=dummy_user)
+
+@app.route("/categroy/<int:category_id>")
+def category_page(category_id):
+    bill_bracket = []
+    # TODO: Bill this month or last seven days
+    for i in dummy_bill:
+        tmp = EditBillForm(i['id'], i['cost'], i['category'], i['comment'], i['date'])
+        tmp.category.choices = dummy_category
+        bill_bracket.append(tmp)
+    return render_template('category_page.html', category=dummy_category[category_id-1][1], bills=bill_bracket)
 

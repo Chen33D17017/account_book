@@ -17,6 +17,10 @@
     <!-- Font Awesome JS -->
     <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/solid.js" integrity="sha384-tzzSw1/Vo+0N5UhStP3bvwWPq+uvzCMfrN1fEFe+xBmv1C/AtVX5K0uZtmcHitFZ" crossorigin="anonymous"></script>
     <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js" integrity="sha384-6OIrr52G08NpOFSZdxxz1xdNSndlD4vdcf/q2myIUVO0VsqaGHJsB0RaBE01VTOY" crossorigin="anonymous"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js"></script>
     
 
 </head>
@@ -45,11 +49,27 @@
                         Portfile
                     </a>
                 </li>
-                <li>
-                    <a href="#">
+		<li>
+                    <a href="#pageSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
 			<i class="fas fa-align-justify"></i>
 			Category
                     </a>
+                    <ul class="collapse list-unstyled" id="pageSubmenu">
+			{% for category in categories%}
+			<li>
+			    <a href={{ url_for('category_page', category_id=category[0]) }}> {{ category[1] }}</a>
+			</li>
+			{% endfor %}
+                        <!-- <li>
+                             <a href="#">Page 1</a>
+                             </li>
+                             <li>
+                             <a href="#">Page 2</a>
+                             </li>
+                             <li>
+                             <a href="#">Page 3</a>
+                             </li> -->
+                    </ul>
                 </li>
             </ul>
         </nav>

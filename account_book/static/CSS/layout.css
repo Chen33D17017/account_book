@@ -176,7 +176,7 @@ span {
 #sidebar ul li.active>a,
 a[aria-expanded="true"] {
     color: #fff;
-    background: #6d7fcc;
+    background: #4682B4;
 }
 
 a[data-toggle="collapse"] {
@@ -194,7 +194,7 @@ a[data-toggle="collapse"] {
 ul ul a {
     font-size: 0.9em !important;
     padding-left: 30px !important;
-    background: #6d7fcc;
+    background: #4682B4;
 }
 
 ul.CTAs {
@@ -216,7 +216,7 @@ a.download {
 
 a.article,
 a.article:hover {
-    background: #6d7fcc !important;
+    background: #4682B4 !important;
     color: #fff !important;
 }
 
