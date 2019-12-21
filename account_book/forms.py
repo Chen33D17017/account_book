@@ -62,7 +62,8 @@ class EditBillForm(FlaskForm):
     tax_rate = FloatField('Tax rate',default=0.08, render_kw={"placeholder": "Tax Rate"})
     tax_bool = BooleanField('Tax')
     date = DateField('Date', validators=[DataRequired()])
-    submit = SubmitField('Update')
+    update = SubmitField('Update')
+    delete = SubmitField('Delete')
 
 
 class SearchBillForm(FlaskForm):
@@ -97,3 +98,11 @@ class ChangePasswordForm(FlaskForm):
     confirm_password = PasswordField('Confirm Password', 
             validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField('Update')
+
+class ChangeCategoryOption(FlaskForm):
+    count_in_day_budget = BooleanField('Count in Day Budget')
+    count_in_week_budget = BooleanField('Count in Week Budget')
+    count_in_month_budget = BooleanField('Count in Month Budget')
+    submit = SubmitField('Update')
+    delete = SubmitField('Delete')
+    

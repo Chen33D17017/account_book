@@ -12,7 +12,7 @@
 		    </h2>
 		</div>
 	    </div>
-	    <form>
+	    <form method="POST" action="">
 		<div class="form-group card-body card-background" id="add-bill">
 		    <div class="row">
 			<div class="add-bill-item col-md-2">
@@ -33,6 +33,7 @@
 			</div>
 		    </div>
 		    <div style="padding-top:15px;">
+			<input type="hidden" name="form-name" value="search-bill">
 			{{ form.submit(class="btn btn-outline-primary") }}
 		    </div>
 	    </form>
@@ -56,16 +57,16 @@
 				<td>${{ bill.cost_value }}</td>
 				<td>{{ bill.comment_value }}</td>
 				<td>
-				    <!-- <button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#edit-modal">Edit</button> -->
 				    <button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#edit-{{bill.index_value}}-modal">Edit</button>
 				    <button type="button" class="btn btn-outline-danger" data-toggle="modal" data-target="#delete-{{bill.index_value}}-modal">Delete</button>
 				</td>
 			    </tr>
-                            {% endfor %}
+			    {% endfor %}
 			</tbody>
 		    </table>
 		</div>
-		{% for bill in bills %}		
+		{% for bill in bills %}
+
 		<div class="modal fade" id="edit-{{bill.index_value}}-modal" tabindex="-1" role="dialog" aria-labelledby="EditModalLabel" aria-hidden="true">
 		    <div class="modal-dialog" role="document">
 			<div class="modal-content">
@@ -76,9 +77,10 @@
 				</button>
 			    </div>
 			    <div class="modal-body">
-				<form>
+				<form method="POST" action="">
+				    <input type="hidden" name="edit-index" value="{{ bill.index_value }}">
 				    <div class="form-group">
-					{{ bill.cost.label(class="form-control-lable") }}
+					{{ bill.cost.label(class="form-control-label") }}
 					{% if bill.cost.errors %}
 					{{ bill.cost(class="form-control is-invalid") }}
 					<div class="finvalid-feedback">
@@ -91,7 +93,7 @@
 					{% endif %}
 				    </div>
 				    <div class="form-group">
-					{{ bill.tax_bool.label(class="form-control-lable") }}
+					{{ bill.tax_bool.label(class="form-control-label") }}
 					<div class="input-group">
 					    <div class="input-group-prepend">
 						<div class="input-group-text">
@@ -102,15 +104,15 @@
 					</div>
 				    </div>
 				    <div class="form-group">
-					{{ bill.category.label(class="form-control-lable") }}
+					{{ bill.category.label(class="form-control-label") }}
 					{{ bill.category(class="form-control", value=bill.category_value) }}
 				    </div>
 				    <div class="form-group">
-					{{ bill.date.label(class="form-control-lable") }}
+					{{ bill.date.label(class="form-control-label") }}
 					{{ bill.date(class="form-control", value=bill.date_value) }}
 				    </div>
 				    <div class="form-group">
-					{{ bill.comment.label(class="form=control-lable") }}
+					{{ bill.comment.label(class="form=control-label") }}
 					{% if bill.comment.errors %}
 					{{ bill.comment(class="form-control is-invalid") }}
 					<div class="invalid-feedback">
@@ -122,12 +124,12 @@
 					{{ bill.comment(class="form-control", value=bill.comment_value) }}
 					{% endif %}
 				    </div>
-				</form>
 			    </div>
 			    <div class="modal-footer">
 				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-				{{ bill.submit(class="btn btn-primary") }}
+				{{ bill.update(class="btn btn-primary") }}
 			    </div>
+
 			</div>
 		    </div>
 		</div>
@@ -147,13 +149,14 @@
 			    </div>
 			    <div class="modal-footer">
 				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-				<button type="button" class="btn btn-danger">Delete</button>
+				{{ bill.delete(class="btn btn-danger") }}
+				<!-- <button type="button" class="btn btn-danger">Delete</button> -->
 			    </div>
+	    			</form>
 			</div>
 		    </div>
 		</div>
-		<!-- End Bill Delete Modal -->
-		
+		<!-- End Bill Delete Modal -->		
 		{% endfor %}
 	</div>
     </div>

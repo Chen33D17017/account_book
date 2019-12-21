@@ -30,7 +30,7 @@ table tbody tr:hover{
 
 .graph-container{
     text-align : center;
-    background: rgba(204, 204, 204, 1);
-    
+    /* background: rgba(204, 204, 204, 1); */
+    background-color: #f2f2f2;
 }
 

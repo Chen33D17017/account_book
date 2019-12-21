@@ -24,30 +24,57 @@
 	    </div>
 	</div>
 	<h3>Budget Counting: </h3>
-	<form>
+	<form method="POST" action="">
+	    {{ form.hidden_tag() }}
 	    <div class="form-check form-check-inline">
-		<input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1" value="option1" checked>
+		<!-- <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1" value="option1" checked> -->
+		{{ form.count_in_day_budget() }}
 		<label class="form-check-label" for="exampleRadios1">
 		    Count in Day Budget
 		</label>
 	    </div>
 	    <div class="form-check form-check-inline">
-		<input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="option2">
+		<!-- <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="option2"> -->
+		{{ form.count_in_week_budget() }}
 		<label class="form-check-label" for="exampleRadios2">
 		    Count in Week Budget
 		</label>
 	    </div>
 	    <div class="form-check form-check-inline">
-		<input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios3" value="option2">
+		<!-- <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios3" value="option2"> -->
+		{{ form.count_in_month_budget() }}
 		<label class="form-check-label" for="exampleRadios3">
 		    Count in Month Budget
 		</label>
 	    </div>
 	    <br>
-	    <button type="button" class="btn btn-info">Update</button>
+	    <!-- <button type="button" class="btn btn-info">Update</button> -->
+	    {{ form.submit(class="btn btn-info") }}
+	    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete-category-modal">Delete Category</button>
 	</form>
-
     </div>
+    <!-- modal for delete catagory modal -->
+    <div class="modal fade" id="delete-category-modal" tabindex="-1" role="dialog" aria-labelledby="CategoryDeleteModalLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+	    <div class="modal-content">
+		<div class="modal-header modal-color-header">
+		    <h5 class="modal-title" id="exampleModalLabel">Delete Bill</h5>
+		    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			<span aria-hidden="true">&times;</span>
+		    </button>
+		</div>
+		<div class="modal-body">
+		    Sure to delete "{{ category }}" category?
+		</div>
+		<div class="modal-footer">
+		    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+		    {{ form.delete(class="btn btn-danger") }}
+		    <!-- <button type="button" class="btn btn-danger">Delete</button> -->
+		</div>
+	    </div>
+	</div>
+    </div>
+    <!-- end for delete category modal -->
     <div class="bill-container">
 	<table class="table">
 	    <thead>
@@ -163,8 +190,7 @@
 	    </div>
 	</div>
     </div>
-    <!-- End Bill Delete Modal -->
-    
+    <!-- End Bill Delete Modal -->    
     {% endfor %}
 
 </div>
