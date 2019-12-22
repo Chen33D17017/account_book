@@ -1,7 +1,10 @@
-from flask import render_template, request, url_for, redirect
+from flask import render_template, request, url_for, redirect, current_app
 from account_book import app
 from account_book.forms import LoginForm, BillInputForm, NewCategoryForm, RegistrationForm, EditBillForm, SearchBillForm, UserProfileForm, ChangePasswordForm, ChangeCategoryOption
 from datetime import date
+from PIL import Image
+import secrets
+import os
 
 dummy_category = [( 1,'Food'), ( 2, 'Household good'), ( 3, 'Rent')]
 dummy_year = [(0, '-'), (1, '2019'), (2, '2018')]
@@ -191,19 +194,68 @@ def search_bill(category=0, time_condition=(0, date.today())):
     return render_template('search_bill.html', form=form, bills=bill_bracket, title='Search Bill')
 
 
-@app.route("/user_profile")
+@app.route("/user_profile", methods=['POST', 'GET'])
 def user_profile():
     user_form = UserProfileForm()
     password_form = ChangePasswordForm()
     if user_form.validate_on_submit():
+        print(user_form.picture)
+        print(user_form.picture.data)
+        if user_form.picture.data:
+           print("picture??") 
+           picture_file = save_picture(user_form.picture.data)
+           print(picture_file)
+           # delete_old_pic(current_user.image_file)
+           image_file = picture_file
+        username = user_form.username.data
+        email = user_form.email.data
+        month_budget = user_form.month_budget.data
+        slack_token = user_form.slack_token.data
+        print(f"username: {username}")
+        print(f"email: {email}")
+        print(f"month_budget: {month_budget}")
+        print(f"slack_token: {slack_token}")
+        # TODO: Save data into database
+        # flash(" Your account has been updated! ", "success")
         return redirect(url_for('user_profile'))
     if password_form.validate_on_submit():
+        password = password_form.password.data
+        confirm_password = password_form.confirm_password.data
+        print(f"password : {password}")
+        print(f"confirm_password : {confirm_password}")
         return redirect(url_for('user_profile'))
     # TODO: Direct to the home page
     return render_template('user_profile.html', user_form=user_form, \
                            password_form=password_form, title="User Profile", user=dummy_user)
 
-@app.route("/categroy/<int:category_id>")
+def absolute_path(path):
+    return os.path.join(current_app.root_path, 'static/profile_pics', path)
+
+
+def create_dir(path):
+    if not os.path.exists(path):
+        os.makedirs(path)
+    
+
+def save_picture(form_picture):
+    random_hex = secrets.token_hex(8)
+    _, f_ext = os.path.splitext(form_picture.filename)
+    picture_fn = random_hex + f_ext
+    create_dir(os.path.join(current_app.root_path, 'static/profile_pics'))
+    picture_path = absolute_path(picture_fn)
+    output_size = (125, 125)
+    i = Image.open(form_picture)
+    i.thumbnail(output_size)
+    i.save(picture_path)
+    return picture_fn
+
+
+def delete_old_pic(old_pic):
+    if old_pic != 'default.jpg':
+        os.remove(absolute_path(old_pic))
+        
+
+@app.route("/categroy/<int:category_id>", methods=['POST', 'GET'])
 def category_page(category_id):
     form = ChangeCategoryOption()
     bill_bracket = []
@@ -212,5 +264,22 @@ def category_page(category_id):
         tmp = EditBillForm(i['id'], i['cost'], i['category'], i['comment'], i['date'])
         tmp.category.choices = dummy_category
         bill_bracket.append(tmp)
-    return render_template('category_page.html', category=dummy_category[category_id-1][1], bills=bill_bracket, form=form)
+    if request.method == 'POST':
+        form_keys = list(request.form.keys())
+        if 'edit-index' in form_keys:
+            edit_or_delete_bill(request.form)
+        else:
+            if 'submit' in form_keys:
+                day_budget = form.count_in_day_budget.data
+                week_budget = form.count_in_week_budget.data
+                month_budget = form.count_in_month_budget.data
+                print(f"budget in day, week, month: {day_budget}, {week_budget}, {month_budget}")
+            elif 'delete' in form_keys:
+                # TODO : Delete this category
+                print("Delete this category")
+            else:
+                # Nothing happend with POST method?
+                pass
+        return redirect(url_for('category_page', category_id=category_id)) 
+    return render_template('category_page.html', title="Category", category=dummy_category[category_id-1][1], bills=bill_bracket, form=form)
 

@@ -11,7 +11,8 @@
 	    </h2>
 	</div>
     </div>
-    <form method="POST" action="">
+    <form method="POST" action="" enctype="multipart/form-data">
+	{{ user_form.hidden_tag() }}
 	<div class="form-group card-body card-background form-container">
 	    <div class="row justify-content-md-center">
 		<div class="col-md-3 pl-0 pr-0">
@@ -73,7 +74,7 @@
 			{% endif %}
 		    </div>
 		    <div class="form-group">
-                        {{ user_form.picture.label() }}
+			{{ user_form.picture.label() }}
                         {{ user_form.picture(class="form-control-file") }}
                         {% if user_form.picture.errors %}
                         {% for error in user_form.picture.errors %}
@@ -87,63 +88,64 @@
 		<button type="button" class="btn btn-outline-danger" data-toggle="modal" data-target="#ChangePasswordModal">Change Password</button>
 		{{ user_form.submit(class="btn btn-outline-primary") }}
 	    </div>
-	    <!-- Change Password Modal -->
-	    <div class="modal fade" id="ChangePasswordModal" tabindex="-1" role="dialog" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
-		<div class="modal-dialog" role="document">
-		    <div class="modal-content">
-			<div class="modal-header">
-			    <h5 class="modal-title" id="exampleModalLabel">Change Password</h5>
-			    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-				<span aria-hidden="true">&times;</span>
-			    </button>
+    </form>
+    <!-- Change Password Modal -->
+    <div class="modal fade" id="ChangePasswordModal" tabindex="-1" role="dialog" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+	    <div class="modal-content">
+		<div class="modal-header">
+		    <h5 class="modal-title" id="exampleModalLabel">Change Password</h5>
+		    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			<span aria-hidden="true">&times;</span>
+		    </button>
+		</div>
+		<div class="modal-body">
+		    <form method="POST" action="">
+			{{ password_form.hidden_tag()}}
+			<div class="form-group">
+			    {{ password_form.password.label(class="form=control-lable") }}
+			    {% if password_form.password.errors %}
+			    {{ password_form.password(class="form-control form-control-lg is-invalid") }}
+			    <div class="invalid-feedback">
+				{% for error in password_form.password.errors %}
+				<span> {{ error }}</span>
+				{% endfor%}
+			    </div>
+			    {% else %}
+			    {{ password_form.password(class="form-control form-control-lg") }}
+			    {% endif %}
+			    <!-- <label for="register-password">Password</label> -->
+			    <!-- <input type="password" class="form-control" id="register-password"> -->
 			</div>
-			<div class="modal-body">
-			    <form method="POST" action="">
-				{{ password_form.hidden_tag()}}
-				<div class="form-group">
-				    {{ password_form.password.label(class="form=control-lable") }}
-				    {% if password_form.password.errors %}
-				    {{ password_form.password(class="form-control form-control-lg is-invalid") }}
-				    <div class="invalid-feedback">
-					{% for error in password_form.password.errors %}
-					<span> {{ error }}</span>
-					{% endfor%}
-				    </div>
-				    {% else %}
-				    {{ password_form.password(class="form-control form-control-lg") }}
-				    {% endif %}
-				    <!-- <label for="register-password">Password</label> -->
-				    <!-- <input type="password" class="form-control" id="register-password"> -->
-				</div>
-				<div class="form-group">
-				    {{ password_form.confirm_password.label(class="form=control-lable") }}
-				    {% if password_form.confirm_password.errors %}
-				    {{ password_form.confirm_password(class="form-control form-control-lg is-invalid") }}
-				    <div class="invalid-feedback">
-					{% for error in password_form.confirm_password.errors %}
-					<span> {{ error }}</span>
-					{% endfor%}
-				    </div>
-				    {% else %}
-				    {{ password_form.confirm_password(class="form-control form-control-lg") }}
-				    {% endif %}
-				    
-				</div>
-				<div class="modal-footer">
-				    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-				    {{ password_form.submit(class="btn btn-danger") }}
-				    <!-- <button type="button" class="btn btn-danger">Update</button> -->
-				</div>
-			    </form>
+			<div class="form-group">
+			    {{ password_form.confirm_password.label(class="form=control-lable") }}
+			    {% if password_form.confirm_password.errors %}
+			    {{ password_form.confirm_password(class="form-control form-control-lg is-invalid") }}
+			    <div class="invalid-feedback">
+				{% for error in password_form.confirm_password.errors %}
+				<span> {{ error }}</span>
+				{% endfor%}
+			    </div>
+			    {% else %}
+			    {{ password_form.confirm_password(class="form-control form-control-lg") }}
+			    {% endif %}
+			    
 			</div>
-		    </div>
+			<div class="modal-footer">
+			    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+			    {{ password_form.submit(class="btn btn-danger") }}
+			    <!-- <button type="button" class="btn btn-danger">Update</button> -->
+			</div>
+		    </form>
 		</div>
 	    </div>
 	</div>
-    </form>
+    </div>
+	</div>
+
 </div>
-	<!-- TODO: Setting Default value for select tags -->
-	<!-- <script>
-	     $("select").each(function(){ $(this).find('option[value="'+$(this).attr("value")+'"]').prop('selected', true); });
-	     </script> -->
-	{% endblock content%}
+<!-- TODO: Setting Default value for select tags -->
+<!-- <script>
+     $("select").each(function(){ $(this).find('option[value="'+$(this).attr("value")+'"]').prop('selected', true); });
+     </script> -->
+{% endblock content%}
