@@ -1,26 +1,20 @@
-from flask import render_template, request, url_for, redirect, current_app
-from account_book import app
+from flask import render_template, request, url_for, redirect, current_app, flash
+from account_book import app, bcrypt, db
 from account_book.forms import LoginForm, BillInputForm, NewCategoryForm, RegistrationForm, EditBillForm, SearchBillForm, UserProfileForm, ChangePasswordForm, ChangeCategoryOption
 from datetime import date
 from PIL import Image
 import secrets
+from flask_login import login_user, current_user, logout_user, login_required
+from account_book.model import User, Category, Bill
 import os
+from sqlalchemy.exc import IntegrityError
 
 dummy_category = [( 1,'Food'), ( 2, 'Household good'), ( 3, 'Rent')]
 dummy_year = [(0, '-'), (1, '2019'), (2, '2018')]
 dummy_month = [(0, '-'), (1, '11'), (2, '12')]
 
 
-accounts = [
-    {
-        'user': 'admin',
-        'password': 'admin'
-    },
-    {
-        'user': 'chen',
-        'password': 'chen'
-    }
-]
+accounts = {'user': 'admin', 'password': 'admin'}
 
 dummy_user = {
     'username' : 'Chen',
@@ -64,28 +58,67 @@ def categories_list():
 
 
 @app.route("/", methods=['GET', 'POST'])
-@app.route("/login")
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        return redirect(url_for('home'))
+        user = User.query.filter_by(username=form.username.data).first()
+        if user:
+            if bcrypt.check_password_hash(user.password,form.password.data):
+                login_user(user, remember=form.remember.data)
+                next_page = request.args.get('next')
+                if next_page:
+                    return redirect(url_for(next_page))
+                else:
+                    return redirect(url_for('home', user=user.name))
+            else:
+                flash("Login Unsecessful, please check your username and password", "danger")
+        else:
+            flash("Unexist user, please try again or register new user", "danger")
     return render_template('login.html', form=form, title="Login")
 
 
-@app.route("/register")
+@app.route("/register", methods=['GET', 'POST'])
 def register():
+    if current_user.is_authenticated():
+        return redirect(url_for('home', user=current_user.name))
     form = RegistrationForm()
     if form.validate_on_submit():
-        return rediect(url_for('login'))
+        name = form.name.data
+        username = form.username.data
+        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        email = form.email.data
+        new_user = User(username=username, name=name, password=hashed_password, email=email)
+        try:
+            db_add(new_user)
+            return redirect(url_for('login'))
+        except Exception as e:
+            flash("Something Wrong", 'danger')
     return render_template('register.html', form=form, title="Registration")
+
+def db_add(db_obj):
+    db.session.add(db_obj)
+    db.session.commit()
+
+@app.route("/logout")
+def logout():
+    logout_user()
+    return redirect(url_for('login'))
 
 
 @app.route("/home")
-def home():
+@login_required
+def home(user=None):
+    user = request.args.get('user')
+    if user:
+        print(user)
+        flash(f"Welcome Back, {user}", 'success')
+    else:
+        print("What?")
     return render_template('home.html', title="Home")
 
 
 @app.route("/add_bill", methods=['GET', 'POST'])
+@login_required
 def add_bill():
     form = BillInputForm()
     c_form = NewCategoryForm()
@@ -144,6 +177,7 @@ def edit_or_delete_bill(request_form):
 
 
 @app.route("/search_bill", methods=['POST', 'GET'])
+@login_required
 def search_bill(category=0, time_condition=(0, date.today())):
     form = SearchBillForm()
     # TODO: Get Year month and category data here
@@ -195,6 +229,7 @@ def search_bill(category=0, time_condition=(0, date.today())):
 
 
 @app.route("/user_profile", methods=['POST', 'GET'])
+@login_required
 def user_profile():
     user_form = UserProfileForm()
     password_form = ChangePasswordForm()
@@ -202,9 +237,7 @@ def user_profile():
         print(user_form.picture)
         print(user_form.picture.data)
         if user_form.picture.data:
-           print("picture??") 
            picture_file = save_picture(user_form.picture.data)
-           print(picture_file)
            # delete_old_pic(current_user.image_file)
            image_file = picture_file
         username = user_form.username.data
@@ -256,6 +289,7 @@ def delete_old_pic(old_pic):
         
 
 @app.route("/categroy/<int:category_id>", methods=['POST', 'GET'])
+@login_required
 def category_page(category_id):
     form = ChangeCategoryOption()
     bill_bracket = []

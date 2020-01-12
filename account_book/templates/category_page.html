@@ -7,7 +7,7 @@
     <div class="card">
 	<div class="card-header" id="headingOne">
 	    <h2 class="mb-0">
-		<legend>{{ category }}</legend>
+		{{ category }}
 	    </h2>
 	</div>
     </div>
@@ -29,21 +29,21 @@
 	    <div class="form-check form-check-inline">
 		<!-- <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1" value="option1" checked> -->
 		{{ form.count_in_day_budget() }}
-		<label class="form-check-label" for="exampleRadios1">
+		<label class="form-check-label">
 		    Count in Day Budget
 		</label>
 	    </div>
 	    <div class="form-check form-check-inline">
 		<!-- <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="option2"> -->
 		{{ form.count_in_week_budget() }}
-		<label class="form-check-label" for="exampleRadios2">
+		<label class="form-check-label">
 		    Count in Week Budget
 		</label>
 	    </div>
 	    <div class="form-check form-check-inline">
 		<!-- <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios3" value="option2"> -->
 		{{ form.count_in_month_budget() }}
-		<label class="form-check-label" for="exampleRadios3">
+		<label class="form-check-label">
 		    Count in Month Budget
 		</label>
 	    </div>
@@ -58,7 +58,7 @@
 	<div class="modal-dialog" role="document">
 	    <div class="modal-content">
 		<div class="modal-header modal-color-header">
-		    <h5 class="modal-title" id="exampleModalLabel">Delete Bill</h5>
+		    <h5 class="modal-title" id="DeleteBillModal">Delete Bill</h5>
 		    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
 			<span aria-hidden="true">&times;</span>
 		    </button>
@@ -109,7 +109,7 @@
 	<div class="modal-dialog" role="document">
 	    <div class="modal-content">
 		<div class="modal-header modal-color-header">
-		    <h5 class="modal-title" id="exampleModalLabel">Edit Bill</h5>
+		    <h5 class="modal-title" id="EditBillModal">Edit Bill</h5>
 		    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
 			<span aria-hidden="true">&times;</span>
 		    </button>

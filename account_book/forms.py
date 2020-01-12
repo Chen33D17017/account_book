@@ -3,35 +3,40 @@ from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, IntegerField, SelectField, FloatField, TextField, IntegerField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from wtforms.fields.html5 import DateField
+from account_book.model import User
 
 #from flask_login import current_user
 
 class LoginForm(FlaskForm):
-    # userAccount = StringField('User Account', validators=[DataRequired()], render_kw={"placeholder" : "User Account"})
-    userAccount = StringField('User Account', validators=[DataRequired()])
+    username = StringField('User Account', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
     remember = BooleanField('Remenber Me')
     submit = SubmitField('Submit')
+    
+    def validate_username(self, username):
+        user = User.query.filter_by(username=username.data).first()
+        if not user:
+            raise ValidationError('User not exist, Please register as new user')
 
 class RegistrationForm(FlaskForm):
-    user_account = StringField('User Account', 
+    username = StringField('User Account', 
             validators=[DataRequired(), Length(min=2, max=20)])  
     email = StringField('Email', validators=[DataRequired(), Email()])
-    username = StringField('Username', validators=[DataRequired()])
+    name = StringField('Your Name:', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
     confirm_password = PasswordField('Confirm Password', 
             validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField('Sign up')
-    # Must start with 'validate' ?
-    # def validate_username(serf, username):
-    #     user = User.query.filter_by(username=username.data).first()
-    #     if user:
-    #         raise ValidationError('That username is taken. Please choose another name')
+    
+    def validate_username(self, username):
+        user = User.query.filter_by(username=username.data).first()
+        if user:
+            raise ValidationError('That username is taken. Please choose another name')
 
-    # def validate_email(self, email):
-    #     user = User.query.filter_by(email=email.data).first()
-    #     if user:
-    #         raise ValidationError('That username is taken. Please choose another name')
+    def validate_email(self, email):
+        user = User.query.filter_by(email=email.data).first()
+        if user:
+            raise ValidationError('That email is taken. Please choose another name')
     
 class BillInputForm(FlaskForm):
     cost = IntegerField('Cost', validators=[DataRequired()], render_kw={"placeholder": "$"})
