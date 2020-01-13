@@ -51,6 +51,11 @@ class NewCategoryForm(FlaskForm):
     category = StringField('New :', validators=[DataRequired()], render_kw={"placeholder" : "Category"})
     submit = SubmitField('Add')
 
+    def validate_add_category(self, category):
+        category = Category.query.filter_by(category_name=category).first()
+        if category:
+            raise ValidationError('Category already existed')
+
     
 class EditBillForm(FlaskForm):
     def __init__(self, index, cost, category, comment, date, **kw):
@@ -62,11 +67,11 @@ class EditBillForm(FlaskForm):
         self.date_value = date
 
     cost = IntegerField("COST",validators=[DataRequired()], render_kw={"placeholder": "$"})
-    category = SelectField('Category')
+    category = SelectField('Category', coerce=int)
     comment = TextField('Comment', validators=[DataRequired()], render_kw={"placeholder": "Dinner: KFC"})
     tax_rate = FloatField('Tax rate',default=0.08, render_kw={"placeholder": "Tax Rate"})
     tax_bool = BooleanField('Tax')
-    date = DateField('Date', validators=[DataRequired()])
+    date = DateField('Date', format='%Y-%m-%d', validators=[DataRequired()])
     update = SubmitField('Update')
     delete = SubmitField('Delete')
 

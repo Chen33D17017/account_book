@@ -103,6 +103,7 @@ span {
 }
 
 #sidebar.active .sidebar-header h3,
+#sidebar.active .sidebar-header h4,
 #sidebar.active .CTAs{
     display: none;
 }

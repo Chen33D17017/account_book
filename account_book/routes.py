@@ -1,7 +1,7 @@
-from flask import render_template, request, url_for, redirect, current_app, flash
+from flask import render_template, request, url_for, redirect, current_app, flash, session
 from account_book import app, bcrypt, db
 from account_book.forms import LoginForm, BillInputForm, NewCategoryForm, RegistrationForm, EditBillForm, SearchBillForm, UserProfileForm, ChangePasswordForm, ChangeCategoryOption
-from datetime import date
+from datetime import date, datetime, timedelta
 from PIL import Image
 import secrets
 from flask_login import login_user, current_user, logout_user, login_required
@@ -12,7 +12,6 @@ from sqlalchemy.exc import IntegrityError
 dummy_category = [( 1,'Food'), ( 2, 'Household good'), ( 3, 'Rent')]
 dummy_year = [(0, '-'), (1, '2019'), (2, '2018')]
 dummy_month = [(0, '-'), (1, '11'), (2, '12')]
-
 
 accounts = {'user': 'admin', 'password': 'admin'}
 
@@ -52,13 +51,16 @@ dummy_bill = [
 
 @app.context_processor
 def categories_list():
-    return dict(
-        categories = dummy_category
+    return {} if not current_user.is_authenticated else dict(
+        # categories = dummy_category
+        categories = [ (category.category_id, category.category_name) for category in Category.query.filter_by(owner_id=current_user.user_id).all()] 
     )
 
 
 @app.route("/", methods=['GET', 'POST'])
 def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('home', user=current_user.name))
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
@@ -66,10 +68,7 @@ def login():
             if bcrypt.check_password_hash(user.password,form.password.data):
                 login_user(user, remember=form.remember.data)
                 next_page = request.args.get('next')
-                if next_page:
-                    return redirect(url_for(next_page))
-                else:
-                    return redirect(url_for('home', user=user.name))
+                return redirect(url_for(next_page)[1:]) if next_page else redirect(url_for('home', user=user.name))
             else:
                 flash("Login Unsecessful, please check your username and password", "danger")
         else:
@@ -79,7 +78,7 @@ def login():
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
-    if current_user.is_authenticated():
+    if current_user.is_authenticated:
         return redirect(url_for('home', user=current_user.name))
     form = RegistrationForm()
     if form.validate_on_submit():
@@ -116,42 +115,49 @@ def home(user=None):
         print("What?")
     return render_template('home.html', title="Home")
 
+def date_convert(date_data):
+    min_time = datetime.min.time()
+    date_time = datetime.combine(date_data, min_time)
+    return date_time
 
 @app.route("/add_bill", methods=['GET', 'POST'])
 @login_required
 def add_bill():
     form = BillInputForm()
     c_form = NewCategoryForm()
-    form.category.choices = dummy_category
+    category_choices = [(c.category_id, c.category_name) for c in Category.query.filter_by(owner_id=current_user.user_id).all()]
+    form.category.choices = category_choices
     bill_bracket = []
-    for i in dummy_bill:
-        tmp = EditBillForm(i['id'], i['cost'], i['category'], i['comment'], i['date'])
-        tmp.category.choices = dummy_category
+    today = datetime.combine(date.today(), datetime.min.time())
+    tomorrow = today + timedelta(days=1)
+    today_bill = Bill.query.filter(Bill.add_date >= today, Bill.add_date < tomorrow).all()
+    for i in today_bill:
+        # tmp = EditBillForm(i['id'], i['cost'], i['category'], i['comment'], i['date'])
+        print(i.date)
+        tmp = EditBillForm(i.bill_id, i.amount, i.category_type.category_name, i.comment, i.date.date())
+        tmp.category.choices = category_choices
         bill_bracket.append(tmp)
     if request.method == 'POST':
         form_keys = list(request.form.keys())
         if 'form-name' in form_keys:
             form_name = request.form['form-name']
+            # Add bill
             if form_name == 'add-bill':
-                cost = float(form.cost.data)
-                if form.tax_bool.data:
-                    cost = int((1 + float(form.tax_rate.data)) * cost)
+                # cost = float(form.cost.data)
+                cost = int((1 + float(form.tax_rate.data)) * form.cost.data) if form.tax_bool.data else int(form.cost.data)
+                # if form.tax_bool.data:
+                    # cost = int((1 + float(form.tax_rate.data)) * cost)
                 category = form.category.data
                 bill_date = form.date.data
                 comment = form.comment.data
                 # TODO: Add the bill into database
-                dummy_bill.append({
-                    'id': len(dummy_bill)+1,
-                    'user' : 'Chen',
-                    'date' : bill_date,
-                    'category' : dummy_category[int(category)-1][1],
-                    'cost' : cost,
-                    'comment' : comment
-                })
+                new_bill = Bill(amount=cost, category_id=category, date=bill_date, comment=comment)
+
+                db_add(Bill(amount=cost, category_id=category, date=bill_date, comment=comment))
+                # Session to log the bills? 
             if form_name == 'add-category':
                 new_category = c_form.category.data
-                # TODO: Add new category into database
-                dummy_category.append((len(dummy_category)+1, new_category))
+                db_add(Category(category_name=new_category, owner_id=current_user.user_id))
         if 'edit-index' in form_keys:
             edit_or_delete_bill(request.form)
         return redirect(url_for('add_bill'))
@@ -192,6 +198,8 @@ def search_bill(category=0, time_condition=(0, date.today())):
     form.month.choices = dummy_month
     bill_bracket = []
     # TODO: Get bill data from the category and search_date
+    
+    bill_today = Bill.query.filter(Bill.add_date >= datetime(2020, 1, 13, 0, 0, 0), Bill.add_date < datetime(2020, 1, 14, 0, 0, 0)).all()
     for i in dummy_bill:
         tmp = EditBillForm(i['id'], i['cost'], i['category'], i['comment'], i['date'])
         tmp.category.choices = dummy_category

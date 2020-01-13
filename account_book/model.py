@@ -1,5 +1,6 @@
 from account_book import db, login_manager
 from flask_login import UserMixin
+from datetime import datetime
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -42,9 +43,11 @@ class Category(db.Model):
 class Bill(db.Model):
     bill_id = db.Column(db.Integer, primary_key=True)
     category_id = db.Column(db.Integer, db.ForeignKey('category.category_id'), nullable=False)
+    amount = db.Column(db.Integer, nullable=False)
     date = db.Column(db.DateTime, nullable=False)
+    add_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     comment = db.Column(db.String(120))
 
     def __repr__(self):
-        return f"Bill('{self.category.owner.username}', '{self.category.category_name}', '{self.date}', '{self.comment}')"
+        return f"Bill('{self.amount}','{self.category_type.owner.username}', '{self.category_type.category_name}', '{self.date}', '{self.comment}')"
     
