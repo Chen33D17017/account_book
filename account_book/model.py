@@ -2,9 +2,11 @@ from account_book import db, login_manager
 from flask_login import UserMixin
 from datetime import datetime
 
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
 
 class User(db.Model, UserMixin):
     user_id = db.Column(db.Integer, primary_key=True)
@@ -18,6 +20,7 @@ class User(db.Model, UserMixin):
     slacktoken = db.Column(db.String(60))
 
     categories = db.relationship('Category', backref='owner', lazy=True)
+    date_data = db.relationship('User_date', backref='user', lazy=True)
 
     def __repr__(self):
         return f"User('{self.username}', '{self.email}', '{self.name}')"
@@ -39,6 +42,7 @@ class Category(db.Model):
 
     def __repr__(self):
         return f"Category('{self.category_name}', '{self.owner.username}')"
+
     
 class Bill(db.Model):
     bill_id = db.Column(db.Integer, primary_key=True)
@@ -50,4 +54,19 @@ class Bill(db.Model):
 
     def __repr__(self):
         return f"Bill('{self.amount}','{self.category_type.owner.username}', '{self.category_type.category_name}', '{self.date}', '{self.comment}')"
+
+
+
+class User_date(db.Model):
+    __table_args__ = (
+        db.UniqueConstraint("user_id", "year", "month"),
+    )
+
+    date_id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
+    year = db.Column(db.Integer, nullable=False)
+    month = db.Column(db.Integer, nullable=False)
+    count = db.Column(db.Integer, nullable=False, default=1)
+
+
     

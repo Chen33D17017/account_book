@@ -5,7 +5,7 @@ from datetime import date, datetime, timedelta
 from PIL import Image
 import secrets
 from flask_login import login_user, current_user, logout_user, login_required
-from account_book.model import User, Category, Bill
+from account_book.model import User, Category, Bill, User_date
 import os
 from sqlalchemy.exc import IntegrityError
 
@@ -111,8 +111,6 @@ def home(user=None):
     if user:
         print(user)
         flash(f"Welcome Back, {user}", 'success')
-    else:
-        print("What?")
     return render_template('home.html', title="Home")
 
 def date_convert(date_data):
@@ -133,7 +131,6 @@ def add_bill():
     today_bill = Bill.query.filter(Bill.add_date >= today, Bill.add_date < tomorrow).all()
     for i in today_bill:
         # tmp = EditBillForm(i['id'], i['cost'], i['category'], i['comment'], i['date'])
-        print(i.date)
         tmp = EditBillForm(i.bill_id, i.amount, i.category_type.category_name, i.comment, i.date.date())
         tmp.category.choices = category_choices
         bill_bracket.append(tmp)
@@ -143,18 +140,17 @@ def add_bill():
             form_name = request.form['form-name']
             # Add bill
             if form_name == 'add-bill':
-                # cost = float(form.cost.data)
                 cost = int((1 + float(form.tax_rate.data)) * form.cost.data) if form.tax_bool.data else int(form.cost.data)
-                # if form.tax_bool.data:
-                    # cost = int((1 + float(form.tax_rate.data)) * cost)
                 category = form.category.data
                 bill_date = form.date.data
                 comment = form.comment.data
-                # TODO: Add the bill into database
-                new_bill = Bill(amount=cost, category_id=category, date=bill_date, comment=comment)
-
-                db_add(Bill(amount=cost, category_id=category, date=bill_date, comment=comment))
-                # Session to log the bills? 
+                user_date = User_date.query.filter_by(user_id=current_user.user_id, year=bill_date.year, month=bill_date.month).first()
+                if user_date:
+                    user_date.count += 1
+                else:
+                    db.session.add(User_date(user_id=current_user.user_id, year=bill_date.year, month=bill_date.month))
+                db.session.add(Bill(amount=cost, category_id=category, date=bill_date, comment=comment))
+                db.session.commit()
             if form_name == 'add-category':
                 new_category = c_form.category.data
                 db_add(Category(category_name=new_category, owner_id=current_user.user_id))
@@ -166,20 +162,36 @@ def add_bill():
 
 
 def edit_or_delete_bill(request_form):
+    
+    def check_delete_user_date_record(year, month):
+        check_record = User_date.query.filter_by(user_id=current_user.user_id, year=year, month=month).first()
+        if not check_record:
+            print("Somthing wrong in the User date model")
+            return
+        elif check_record.count == 1:
+            db.session.delete(check_record)
+        else:
+            check_record.count -= 1
+        return
+
     form_keys = list(request_form.keys())
     index = int(request_form['edit-index'])
+    target_bill = Bill.query.filter_by(bill_id=index).first()
+    old_year = target_bill.date.date().year
+    old_month = target_bill.date.date().month
     if 'update' in form_keys:
-        cost = float(request_form['cost'])
-        if 'tax_bool' in form_keys:
-            cost = int((1 + float(request_form['tax_rate'])) * cost)
-            category = request_form['category']
-            bill_date = request_form['date']
-            comment = request_form['comment']
-            # TODO: Update the bill with bill index
-        print(f"Update bill {index}")
+        target_bill.amount = int((1 + float(request_form['tax_rate'])) * int(request_form['cost'])) if 'tax_bool' in form_keys else int(request_form['cost'])
+        target_bill.category_id = request_form['category']
+        new_date = date.fromisoformat(request_form['date'])
+        if new_date.year != old_year or new_date.month != old_month:
+            check_delete_user_date_record(old_year, old_month)
+            db.session.add(User_date(user_id=current_user.user_id, year=new_date.year, month=new_date.month))
+        target_bill.date = new_date
+        target_bill.comment = request_form['comment']
     if 'delete' in form_keys:
-        # TODO: Delete the bill with bill index
-        print(f"Delete bill {index}")
+        check_delete_user_date_record(old_year, old_month)
+        db.session.delete(target_bill)
+    db.session.commit()
 
 
 @app.route("/search_bill", methods=['POST', 'GET'])
