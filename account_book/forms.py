@@ -58,16 +58,8 @@ class NewCategoryForm(FlaskForm):
 
     
 class EditBillForm(FlaskForm):
-    def __init__(self, index, cost, category, comment, date, **kw):
-        super(EditBillForm, self).__init__(**kw)
-        self.index_value = index
-        self.cost_value = cost
-        self.category_value = category
-        self.comment_value = comment
-        self.date_value = date
-
     cost = IntegerField("COST",validators=[DataRequired()], render_kw={"placeholder": "$"})
-    category = SelectField('Category', coerce=int)
+    category = SelectField('Category')
     comment = TextField('Comment', validators=[DataRequired()], render_kw={"placeholder": "Dinner: KFC"})
     tax_rate = FloatField('Tax rate',default=0.08, render_kw={"placeholder": "Tax Rate"})
     tax_bool = BooleanField('Tax')

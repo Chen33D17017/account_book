@@ -2,11 +2,13 @@ from flask import render_template, request, url_for, redirect, current_app, flas
 from account_book import app, bcrypt, db
 from account_book.forms import LoginForm, BillInputForm, NewCategoryForm, RegistrationForm, EditBillForm, SearchBillForm, UserProfileForm, ChangePasswordForm, ChangeCategoryOption
 from datetime import date, datetime, timedelta
+from dateutil.relativedelta import relativedelta
 from PIL import Image
 import secrets
 from flask_login import login_user, current_user, logout_user, login_required
 from account_book.model import User, Category, Bill, User_date
 import os
+import json
 from sqlalchemy.exc import IntegrityError
 
 dummy_category = [( 1,'Food'), ( 2, 'Household good'), ( 3, 'Rent')]
@@ -123,25 +125,34 @@ def date_convert(date_data):
 def add_bill():
     form = BillInputForm()
     c_form = NewCategoryForm()
-    category_choices = [(c.category_id, c.category_name) for c in Category.query.filter_by(owner_id=current_user.user_id).all()]
+    e_form = EditBillForm()
+    category_choices = [(c.category_name, c.category_name) for c in Category.query.filter_by(owner_id=current_user.user_id).all()]
     form.category.choices = category_choices
-    bill_bracket = []
-    today = datetime.combine(date.today(), datetime.min.time())
+    e_form.category.choices = category_choices
+    today = datetime.combine(datetime.utcnow().date(), datetime.min.time())
     tomorrow = today + timedelta(days=1)
-    today_bill = Bill.query.filter(Bill.add_date >= today, Bill.add_date < tomorrow).all()
-    for i in today_bill:
-        # tmp = EditBillForm(i['id'], i['cost'], i['category'], i['comment'], i['date'])
-        tmp = EditBillForm(i.bill_id, i.amount, i.category_type.category_name, i.comment, i.date.date())
-        tmp.category.choices = category_choices
+    bill_add_today = Bill.query.filter(Bill.add_date >= today, Bill.add_date < tomorrow).all()
+    bill_bracket = []
+    for i in bill_add_today:
+        tmp = {
+            "id" : i.bill_id,
+            "amount" : i.amount,
+            "category" : i.category_type.category_name,
+            "comment" : i.comment,
+            "date" : i.date.date()
+        }
+        # tmp = EditBillForm(i.bill_id, i.amount, i.category_type.category_name, i.category_id, i.comment, i.date.date())
         bill_bracket.append(tmp)
     if request.method == 'POST':
         form_keys = list(request.form.keys())
-        if 'form-name' in form_keys:
+        print(request.form)
+        if 'form-name' in request.form:
             form_name = request.form['form-name']
             # Add bill
             if form_name == 'add-bill':
                 cost = int((1 + float(form.tax_rate.data)) * form.cost.data) if form.tax_bool.data else int(form.cost.data)
                 category = form.category.data
+                category = Category.query.filter_by(category_name=category).first().category_id
                 bill_date = form.date.data
                 comment = form.comment.data
                 user_date = User_date.query.filter_by(user_id=current_user.user_id, year=bill_date.year, month=bill_date.month).first()
@@ -151,14 +162,16 @@ def add_bill():
                     db.session.add(User_date(user_id=current_user.user_id, year=bill_date.year, month=bill_date.month))
                 db.session.add(Bill(amount=cost, category_id=category, date=bill_date, comment=comment))
                 db.session.commit()
+                flash("Success to Add Bill", "success")
             if form_name == 'add-category':
                 new_category = c_form.category.data
-                db_add(Category(category_name=new_category, owner_id=current_user.user_id))
-        if 'edit-index' in form_keys:
+                db_add(Category(category_name=new_qcategory, owner_id=current_user.user_id))
+                flash("Success to Add New Category", "success")
+        if 'edit-id' in request.form:
             edit_or_delete_bill(request.form)
         return redirect(url_for('add_bill'))
     return render_template('add_bill.html', form=form, c_form=c_form, \
-                           bills=bill_bracket, title="Add Bill")
+                           bills=bill_bracket, e_form=e_form, title="Add Bill")
 
 
 def edit_or_delete_bill(request_form):
@@ -173,79 +186,69 @@ def edit_or_delete_bill(request_form):
         else:
             check_record.count -= 1
         return
-
-    form_keys = list(request_form.keys())
-    index = int(request_form['edit-index'])
+    
+    index = int(request_form['edit-id'])
     target_bill = Bill.query.filter_by(bill_id=index).first()
     old_year = target_bill.date.date().year
     old_month = target_bill.date.date().month
-    if 'update' in form_keys:
-        target_bill.amount = int((1 + float(request_form['tax_rate'])) * int(request_form['cost'])) if 'tax_bool' in form_keys else int(request_form['cost'])
-        target_bill.category_id = request_form['category']
+    if 'update' in request_form:
+        target_bill.amount = int((1 + float(request_form['tax_rate'])) * int(request_form['cost'])) if 'tax_bool' in request_form else int(request_form['cost'])
+        target_bill.category_id = Category.query.filter_by(category_name=request_form['category']).first().category_id
         new_date = date.fromisoformat(request_form['date'])
         if new_date.year != old_year or new_date.month != old_month:
             check_delete_user_date_record(old_year, old_month)
             db.session.add(User_date(user_id=current_user.user_id, year=new_date.year, month=new_date.month))
         target_bill.date = new_date
         target_bill.comment = request_form['comment']
-    if 'delete' in form_keys:
+    if 'delete' in request_form:
         check_delete_user_date_record(old_year, old_month)
         db.session.delete(target_bill)
     db.session.commit()
 
 
+@app.route('/_search_bill', methods=["POST"])
+def _search_bill():
+    recieve_data = json.loads(request.data)
+    response = {}
+    bills = Bill.query.join(Category).filter_by(owner_id=1)
+    if 'category' in recieve_data:
+        category = recieve_data['category']
+        bills = bills.filter_by(category_name=category) if category else bills
+        if recieve_data['date']:
+            search_date = date.fromisoformat(recieve_data['date'])
+            search_date = datetime.combine(search_date, datetime.min.time())
+            bills = bills.filter(Bill.date==search_date)
+        else:
+            if recieve_data['year']:
+                year = int(recieve_data['year'])
+                target_user_date = User_date.query.filter_by(user_id=current_user.user_id, year=year)
+                response['month_choices'] = [item.month for item in target_user_date.all()]
+                start_day, last_day = datetime(year, 1, 1), datetime(year+1, 1, 1)
+                if recieve_data['month']:
+                    month = int(recieve_data['month'])
+                    start_day = datetime(year, month, 1)
+                    last_day = start_day + relativedelta(months=1)
+                bills = bills.filter(Bill.date >= start_day, Bill.date < last_day)
+    else:
+        search_date = datetime.combine(date.today(), datetime.min.time())
+        bills = bills.filter(Bill.date==search_date)
+    records = bills.all()
+    if records:
+        response['bills'] = [bill.to_dict() for bill in records]
+    return json.dumps(response)
+
+
 @app.route("/search_bill", methods=['POST', 'GET'])
 @login_required
-def search_bill(category=0, time_condition=(0, date.today())):
-    form = SearchBillForm()
-    # TODO: Get Year month and category data here
-    # category: 0 for all
-    # time condition 0 for specific date
-    #                1 for specific year and month
-    #                2 for specific year
-    #                3 for specific month
-    form.category.choices = dummy_category
-    form.category.choices.append((0, 'All'))
-    form.year.choices = dummy_year
-    form.month.choices = dummy_month
-    bill_bracket = []
-    # TODO: Get bill data from the category and search_date
-    
-    bill_today = Bill.query.filter(Bill.add_date >= datetime(2020, 1, 13, 0, 0, 0), Bill.add_date < datetime(2020, 1, 14, 0, 0, 0)).all()
-    for i in dummy_bill:
-        tmp = EditBillForm(i['id'], i['cost'], i['category'], i['comment'], i['date'])
-        tmp.category.choices = dummy_category
-        bill_bracket.append(tmp)
+def search_bill():
+    e_form = EditBillForm()
+    e_form.category.choices = [(c.category_name, c.category_name) for c in Category.query.filter_by(owner_id=current_user.user_id).all()]
+    distinct_years = db.session.query(User_date.year).distinct().all()
+    year_choices = [year[0] for year in distinct_years]
     if request.method == 'POST':
-        form_keys = list(request.form.keys())
-        if 'form-name' in form_keys:
-            if request.form['form-name'] == 'search-bill':
-                if all( x in form_keys for x in ['date', 'month', 'year', 'category']):
-                    category = int(request.form['category'])
-                    if request.form['date']:
-                        time_condition = date(request.form['date'])
-                    else:
-                        if request.form['year'] != 0 and request.form['month'] != 0:
-                            time_condition = (1, (int(request.form['year']), int(request.form['month'])))
-                        elif request.form['year'] != 0:
-                            time_condition = (2, int(request.form['year']))
-                        elif request.form['month'] != 0:
-                            time_condition = (3, int(request.form['month']))
-                        else:
-                            print("Unexpect situation from searching")
-                            # Flash and return search 
-                else:
-                    print("Unexpect situation that year, month, date not in request")
-            else:
-                print("Unexpect form-name")
-                return redirect(url_for('add_bill', category=category, time_condition=time_condition))
-        elif 'edit-index' in form_keys:
+        if 'edit-id' in request.form:
             edit_or_delete_bill(request.form)
-        else:
-            # Nothing happend with POST method?
-            redirect(url_for('add_bill'))
-        return redirect(url_for('add_bill'))
-    return render_template('search_bill.html', form=form, bills=bill_bracket, title='Search Bill')
+    return render_template('search_bill.html', e_form=e_form, title='Search Bill', years=year_choices)
 
 
 @app.route("/user_profile", methods=['POST', 'GET'])

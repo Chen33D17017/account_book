@@ -52,6 +52,15 @@ class Bill(db.Model):
     add_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     comment = db.Column(db.String(120))
 
+    def to_dict(self):
+        return {
+            'id': self.bill_id,
+            'amount' : self.amount,
+            'category': self.category_type.category_name,
+            'date': f"{self.date}".split()[0],
+            'comment': self.comment
+        }
+
     def __repr__(self):
         return f"Bill('{self.amount}','{self.category_type.owner.username}', '{self.category_type.category_name}', '{self.date}', '{self.comment}')"
 

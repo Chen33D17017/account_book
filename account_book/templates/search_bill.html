@@ -16,155 +16,245 @@
 		<div class="form-group card-body card-background" id="add-bill">
 		    <div class="row">
 			<div class="add-bill-item col-md-2">
-			    {{ form.category.label(class="form-control-label") }}
-                            {{ form.category(class="form-control") }}
+			    <label class="form-control-label" for="search-category">Category</label>
+                            <select class="form-control search-control" id="search-category" name="category">
+				<option value="All"></option>
+				{% for category in categories %}
+				<option value="{{category[1]}}">{{category[1]}}</option>
+				{% endfor %}
+			    </select>
 			</div>
 			<div class="add-bill-item col-md-2">
-			    {{ form.year.label(class="form-control-label") }}
-                            {{ form.year(class="form-control") }}
+			    <label class="form-control-label" for="search-year">Year</label>
+                            <select class="form-control search-control" id="search-year" name="year">
+				<option></option>
+				{% for year in years %}
+				<option value="{{year}}">{{year}}</option>
+				{% endfor %}
+			    </select>
 			</div>
 			<div class="add-bill-item col-md-2">
-			    {{ form.month.label(class="form-control-label") }}
-                            {{ form.month(class="form-control") }}
+			    <label class="form-control-label" for="search-month">Month</label>
+                            <select class="form-control search-control" id="search-month" name="month">
+				<option value="0"></option>
+				<option value="11">11</option>
+				<option value="12">12</option>
+			    </select>
 			</div>
 			<div class="add-bill-item col-md-6">
-			    {{ form.date.label(class="form-control-label") }}
-                            {{ form.date(class="form-control") }}
+			    <label class="form-control-label" for="search-date">Date</label>
+			    <input class="form-control search-control" id="search-date" name="date" type="date" value="">
 			</div>
 		    </div>
-		    <div style="padding-top:15px;">
-			<input type="hidden" name="form-name" value="search-bill">
-			{{ form.submit(class="btn btn-outline-primary") }}
-		    </div>
+		</div>
 	    </form>
-		</div>
-		<div class="bill-container">
-		    <table class="table">
-			<thead>
-			    <tr>
-				<th scope="col">Date</th>
-				<th scope="col">Category</th>
-				<th scope="col">Cost</th>
-				<th scope="col">Comment</th>
-				<th scope="col">#</th>
-			    </tr>
-			</thead>
-			<tbody>
-			    {% for bill in bills %}
-			    <tr>
-				<th scope="row">{{ bill.date_value }}</th>
-				<td>{{ bill.category_value }}</td>
-				<td>${{ bill.cost_value }}</td>
-				<td>{{ bill.comment_value }}</td>
-				<td>
-				    <button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#edit-{{bill.index_value}}-modal">Edit</button>
-				    <button type="button" class="btn btn-outline-danger" data-toggle="modal" data-target="#delete-{{bill.index_value}}-modal">Delete</button>
-				</td>
-			    </tr>
-			    {% endfor %}
-			</tbody>
-		    </table>
-		</div>
-		{% for bill in bills %}
-
-		<div class="modal fade" id="edit-{{bill.index_value}}-modal" tabindex="-1" role="dialog" aria-labelledby="EditModalLabel" aria-hidden="true">
-		    <div class="modal-dialog" role="document">
-			<div class="modal-content">
-			    <div class="modal-header modal-color-header">
-				<h5 class="modal-title" id="exampleModalLabel">Edit Bill</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-				    <span aria-hidden="true">&times;</span>
-				</button>
-			    </div>
-			    <div class="modal-body">
-				<form method="POST" action="">
-				    <input type="hidden" name="edit-index" value="{{ bill.index_value }}">
-				    <div class="form-group">
-					{{ bill.cost.label(class="form-control-label") }}
-					{% if bill.cost.errors %}
-					{{ bill.cost(class="form-control is-invalid") }}
-					<div class="finvalid-feedback">
-					    {% for error in form.cost.errors %}
-					    <span> {{ error }}</span>
-					    {% endfor%}
-					</div>
-					{% else %}
-					{{ bill.cost(class="form-control",value=bill.cost_value) }}
-					{% endif %}
-				    </div>
-				    <div class="form-group">
-					{{ bill.tax_bool.label(class="form-control-label") }}
-					<div class="input-group">
-					    <div class="input-group-prepend">
-						<div class="input-group-text">
-						    {{ bill.tax_bool() }}
-						</div>
-					    </div>
-					    {{ bill.tax_rate(class="form-control") }}
-					</div>
-				    </div>
-				    <div class="form-group">
-					{{ bill.category.label(class="form-control-label") }}
-					{{ bill.category(class="form-control", value=bill.category_value) }}
-				    </div>
-				    <div class="form-group">
-					{{ bill.date.label(class="form-control-label") }}
-					{{ bill.date(class="form-control", value=bill.date_value) }}
-				    </div>
-				    <div class="form-group">
-					{{ bill.comment.label(class="form=control-label") }}
-					{% if bill.comment.errors %}
-					{{ bill.comment(class="form-control is-invalid") }}
-					<div class="invalid-feedback">
-					    {% for error in bill.comment.errors %}
-					    <span> {{ error }}</span>
-					    {% endfor %}
-					</div>
-					{% else %}
-					{{ bill.comment(class="form-control", value=bill.comment_value) }}
-					{% endif %}
-				    </div>
-			    </div>
-			    <div class="modal-footer">
-				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-				{{ bill.update(class="btn btn-primary") }}
-			    </div>
-
-			</div>
-		    </div>
-		</div>
-		<!-- End Edit Bill Modal -->
-		<!-- Bill Delete Modal -->
-		<div class="modal fade" id="delete-{{bill.index_value}}-modal" tabindex="-1" role="dialog" aria-labelledby="BillDeleteModalLabel" aria-hidden="true">
-		    <div class="modal-dialog" role="document">
-			<div class="modal-content">
-			    <div class="modal-header modal-color-header">
-				<h5 class="modal-title" id="exampleModalLabel">Delete Bill</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-				    <span aria-hidden="true">&times;</span>
-				</button>
-			    </div>
-			    <div class="modal-body">
-				Sure to delete ?
-			    </div>
-			    <div class="modal-footer">
-				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-				{{ bill.delete(class="btn btn-danger") }}
-				<!-- <button type="button" class="btn btn-danger">Delete</button> -->
-			    </div>
-	    			</form>
-			</div>
-		    </div>
-		</div>
-		<!-- End Bill Delete Modal -->		
-		{% endfor %}
 	</div>
     </div>
+
+    <div class="bill-container">
+	<table class="table mb-0">
+	</table>
+    </div>
+
 </div>
 
-<!-- TODO: Setting Default value for select tags -->
-<!-- <script>
-     $("select").each(function(){ $(this).find('option[value="'+$(this).attr("value")+'"]').prop('selected', true); });
-     </script> -->
+
+<form method="POST" action="">
+    {{ e_form.hidden_tag() }}
+    <div class="modal fade" id="edit-bill-modal" tabindex="-1" role="dialog" aria-labelledby="EditModalLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+	    <div class="modal-content">
+		<div class="modal-header modal-color-header">
+		    <h5 class="modal-title" id="exampleModalLabel">Edit Bill</h5>
+		    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			<span aria-hidden="true">&times;</span>
+		    </button>
+		</div>
+		<div class="modal-body">
+		    <!-- <input type="hidden" name="form-name" value="edit-index"> -->
+		    <input type="hidden" id="edit-id" name="edit-id">
+		    <div class="form-group">
+			{{ e_form.cost.label(class="form-control-label") }}
+			{% if e_form.cost.errors %}
+			{{ e_form.cost(class="form-control", id="edit-amount") }}
+			<div class="finvalid-feedback">
+			    {% for error in e_form.cost.errors %}
+			    <span> {{ error }}</span>
+			    {% endfor%}
+			</div>
+			{% else %}
+			{{ e_form.cost(class="form-control", id="edit-amount") }}
+			{% endif %}
+		    </div>
+		    <div class="form-group">
+			{{ e_form.tax_bool.label(class="form-control-label") }}
+			<div class="input-group">
+			    <div class="input-group-prepend">
+				<div class="input-group-text">
+				    {{ e_form.tax_bool(id="edit-tax-bool") }}
+				</div>
+			    </div>
+			    {{ e_form.tax_rate(class="form-control", id="edit-tax-rate") }}
+			</div>
+		    </div>
+		    <div class="form-group">
+			{{ e_form.category.label(class="form-control-label") }}
+			{{ e_form.category(class="form-control", id="edit-category") }}
+		    </div>
+		    <div class="form-group">
+			{{ e_form.date.label(class="form-control-label") }}
+			{{ e_form.date(class="form-control", id="edit-date") }}
+		    </div>
+		    <div class="form-group">
+			{{ e_form.comment.label(class="form=control-label") }}
+			{% if e_form.comment.errors %}
+			{{ e_form.comment(class="form-control", id="edit-comment") }}
+			<div class="invalid-feedback">
+			    {% for error in e_form.comment.errors %}
+			    <span> {{ error }}</span>
+			    {% endfor %}
+			</div>
+			{% else %}
+			{{ e_form.comment(class="form-control", id="edit-comment") }}
+			{% endif %}
+		    </div>
+		</div>
+		<div class="modal-footer">
+		    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+		    {{ e_form.update(class="btn btn-primary") }}
+		</div>
+	    </div>
+	</div>
+    </div>
+    <!-- End Edit Bill Modal -->
+    <!-- Bill Delete Modal -->
+    <div class="modal fade" id="delete-bill-modal" tabindex="-1" role="dialog" aria-labelledby="BillDeleteModalLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+	    <div class="modal-content">
+		<div class="modal-header modal-color-header">
+		    <h5 class="modal-title" id="exampleModalLabel">Delete Bill</h5>
+		    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			<span aria-hidden="true">&times;</span>
+		    </button>
+		</div>
+		<div class="modal-body">
+		    Sure to delete ?
+		</div>
+		<div class="modal-footer">
+		    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+		    {{ e_form.delete(class="btn btn-danger") }}
+		</div>
+
+	    </div>
+	</div>
+    </div>
+</form>
+</div>
+
+
+
+<script>
+ function select_content(select){
+     return $(`${select} option:selected`).text()
+ }
+
+ $(".search-control").change(function () {
+     var str= "", condition = new Object();
+     var obj = new Object();
+     var date = $("#search-date").val();
+     $( ".search-control option:selected" ).each(function() {
+	 str += $( this ).text();
+     });
+     str += date;
+     if(!select_content("#search-year")){
+	 $("#search-month").empty();
+     }
+     if(str){
+	 condition.category = select_content("#search-category");
+	 condition.year = select_content("#search-year");
+	 condition.month = select_content("#search-month");
+	 condition.date = date;
+     }
+     else{
+	 condition.today = true;
+     }
+     $.ajax({
+	 type : 'POST',
+	 url : "{{url_for('_search_bill')}}",
+	 data : JSON.stringify(condition),
+	 contentType: 'application/json;charset=UTF-8',
+	 success: function(result) {
+	     /* 		     $("#judgementDetail").empty();*/
+	     obj = $.parseJSON( result );
+	     $("table").empty();
+	     if(obj.hasOwnProperty('bills')){
+		 create_table();
+		 create_bill(obj.bills);
+	     }
+	     if(obj.hasOwnProperty('month_choices')){
+		 $("#search-month").append(`<option value="0"></option>`);
+		 for(var choice of obj.month_choices){
+		     $("#search-month").append(`<option value="${choice}">${choice}</option>`);
+		 }
+	     }
+	 }
+     })
+
+
+ }).change();
+ 
+</script>
+
+<script>
+ function create_table(){
+     $("table").append(`
+<thead>
+     <tr>
+     <th scope="col">Date</th>
+     <th scope="col">Category</th>
+     <th scope="col">Cost</th>
+     <th scope="col">Comment</th>
+     <th scope="col">#</th>
+     </tr>
+     </thead>
+     <tbody id="bill-list">
+     </tbody>
+
+`);
+ }
+ function create_bill(bill_array){
+     for(var i of bill_array){
+	 $("#bill-list").append(`
+<tr>
+<td style="display: none;">${i.id}</td>
+     <th scope="row">${i.date}</th>
+     <td>${i.category}</td>
+     <td>$${i.amount}</td>
+     <td>${i.comment}</td>
+     <td>
+     <button type="button" class="btn btn-outline-info edit-btn" data-toggle="modal" data-target="#edit-bill-modal">Edit</button>
+     <button type="button" class="btn btn-outline-danger edit-btn" data-toggle="modal" data-target="#delete-bill-modal">Delete</button>
+     </td>
+</tr>
+
+`);
+     }
+ }
+</script>
+
+<script>
+ 
+ $(document).on("click", ".edit-btn", function(e) {
+     var resultArray = [];
+     $(this).parent().parent().children("td").each(function(){resultArray.push($(this).text());})
+     var date = $(this).parent().parent().children("th").text()
+     $("#edit-id").attr("value", resultArray[0]);
+     $("#edit-date").attr("value", date);
+     $('#edit-category').val(resultArray[1]);
+     $("#edit-amount").attr("value", resultArray[2].substring(1));
+     $("#edit-comment").attr("value", resultArray[3]);
+ });
+ 
+</script>
 
 {% endblock content%}
