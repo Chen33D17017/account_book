@@ -66,14 +66,6 @@ class EditBillForm(FlaskForm):
     date = DateField('Date', format='%Y-%m-%d', validators=[DataRequired()])
     update = SubmitField('Update')
     delete = SubmitField('Delete')
-
-
-class SearchBillForm(FlaskForm):
-    category = SelectField('Category')
-    date = DateField('Date')
-    year = SelectField('Year')
-    month = SelectField('Month')
-    submit = SubmitField('Search')
     
         
 class UserProfileForm(FlaskForm):
@@ -102,9 +94,9 @@ class ChangePasswordForm(FlaskForm):
     submit = SubmitField('Update')
 
 class ChangeCategoryOption(FlaskForm):
-    count_in_day_budget = BooleanField('Count in Day Budget')
-    count_in_week_budget = BooleanField('Count in Week Budget')
-    count_in_month_budget = BooleanField('Count in Month Budget')
+    count_in_day = BooleanField('Count in Day Budget')
+    count_in_week = BooleanField('Count in Week Budget')
+    count_in_month = BooleanField('Count in Month Budget')
     submit = SubmitField('Update')
     delete = SubmitField('Delete')
     

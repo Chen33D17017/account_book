@@ -1,6 +1,6 @@
 from flask import render_template, request, url_for, redirect, current_app, flash, session
 from account_book import app, bcrypt, db
-from account_book.forms import LoginForm, BillInputForm, NewCategoryForm, RegistrationForm, EditBillForm, SearchBillForm, UserProfileForm, ChangePasswordForm, ChangeCategoryOption
+from account_book.forms import LoginForm, BillInputForm, NewCategoryForm, RegistrationForm, EditBillForm, UserProfileForm, ChangePasswordForm, ChangeCategoryOption
 from datetime import date, datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from PIL import Image
@@ -10,6 +10,7 @@ from account_book.model import User, Category, Bill, User_date
 import os
 import json
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy import func
 
 dummy_category = [( 1,'Food'), ( 2, 'Household good'), ( 3, 'Rent')]
 dummy_year = [(0, '-'), (1, '2019'), (2, '2018')]
@@ -131,7 +132,7 @@ def add_bill():
     e_form.category.choices = category_choices
     today = datetime.combine(datetime.utcnow().date(), datetime.min.time())
     tomorrow = today + timedelta(days=1)
-    bill_add_today = Bill.query.filter(Bill.add_date >= today, Bill.add_date < tomorrow).all()
+    bill_add_today = Bill.query.filter(Bill.add_date >= today, Bill.add_date < tomorrow).order_by(Bill.date.desc()).all()
     bill_bracket = []
     for i in bill_add_today:
         tmp = {
@@ -141,7 +142,6 @@ def add_bill():
             "comment" : i.comment,
             "date" : i.date.date()
         }
-        # tmp = EditBillForm(i.bill_id, i.amount, i.category_type.category_name, i.category_id, i.comment, i.date.date())
         bill_bracket.append(tmp)
     if request.method == 'POST':
         form_keys = list(request.form.keys())
@@ -165,7 +165,7 @@ def add_bill():
                 flash("Success to Add Bill", "success")
             if form_name == 'add-category':
                 new_category = c_form.category.data
-                db_add(Category(category_name=new_qcategory, owner_id=current_user.user_id))
+                db_add(Category(category_name=new_category, owner_id=current_user.user_id))
                 flash("Success to Add New Category", "success")
         if 'edit-id' in request.form:
             edit_or_delete_bill(request.form)
@@ -175,18 +175,6 @@ def add_bill():
 
 
 def edit_or_delete_bill(request_form):
-    
-    def check_delete_user_date_record(year, month):
-        check_record = User_date.query.filter_by(user_id=current_user.user_id, year=year, month=month).first()
-        if not check_record:
-            print("Somthing wrong in the User date model")
-            return
-        elif check_record.count == 1:
-            db.session.delete(check_record)
-        else:
-            check_record.count -= 1
-        return
-    
     index = int(request_form['edit-id'])
     target_bill = Bill.query.filter_by(bill_id=index).first()
     old_year = target_bill.date.date().year
@@ -197,7 +185,11 @@ def edit_or_delete_bill(request_form):
         new_date = date.fromisoformat(request_form['date'])
         if new_date.year != old_year or new_date.month != old_month:
             check_delete_user_date_record(old_year, old_month)
-            db.session.add(User_date(user_id=current_user.user_id, year=new_date.year, month=new_date.month))
+            search_records = User_date.query.filter_by(user_id=current_user.user_id, year=new_date.year, month=new_date.month).first()
+            if search_records:
+                search_records.count += 1;
+            else:
+                db.session.add(User_date(user_id=current_user.user_id, year=new_date.year, month=new_date.month))
         target_bill.date = new_date
         target_bill.comment = request_form['comment']
     if 'delete' in request_form:
@@ -232,7 +224,7 @@ def _search_bill():
     else:
         search_date = datetime.combine(date.today(), datetime.min.time())
         bills = bills.filter(Bill.date==search_date)
-    records = bills.all()
+    records = bills.order_by(Bill.date.desc()).all()
     if records:
         response['bills'] = [bill.to_dict() for bill in records]
     return json.dumps(response)
@@ -243,7 +235,7 @@ def _search_bill():
 def search_bill():
     e_form = EditBillForm()
     e_form.category.choices = [(c.category_name, c.category_name) for c in Category.query.filter_by(owner_id=current_user.user_id).all()]
-    distinct_years = db.session.query(User_date.year).distinct().all()
+    distinct_years = db.session.query(User_date.year).filter(User_date.user_id==current_user.user_id).distinct().all()
     year_choices = [year[0] for year in distinct_years]
     if request.method == 'POST':
         if 'edit-id' in request.form:
@@ -315,28 +307,84 @@ def delete_old_pic(old_pic):
 @login_required
 def category_page(category_id):
     form = ChangeCategoryOption()
+    e_form = EditBillForm()
+    bill_TODO = []
+    category_records = Category.query.filter_by(category_id=category_id).first()
+    category_name = category_records.category_name
+    bills = Bill.query.filter(Bill.category_id==category_id).order_by(Bill.date.desc()).all()
+    e_form.category.choices = [(c.category_name, c.category_name) for c in Category.query.filter_by(owner_id=current_user.user_id).all()]
     bill_bracket = []
-    # TODO: Bill this month or last seven days
-    for i in dummy_bill:
-        tmp = EditBillForm(i['id'], i['cost'], i['category'], i['comment'], i['date'])
-        tmp.category.choices = dummy_category
+    for i in bills:
+        tmp = {
+            "id" : i.bill_id,
+            "amount" : i.amount,
+            "category" : i.category_type.category_name,
+            "comment" : i.comment,
+            "date" : i.date.date()
+        }
         bill_bracket.append(tmp)
+    count_records = Category.query.filter_by(category_id=category_id).first()
+    count_in_list = [count_records.count_in_day, count_records.count_in_week, count_records.count_in_month]
+    sum_query = db.session.query(func.sum(Bill.amount)).filter(Bill.category_id==category_id)
+    today = datetime.combine(date.today(), datetime.min.time())
+
+    # Calculate sum for each days
+    day_sum = []
+    for i in range(6, -1, -1):
+        target_date = today - timedelta(days=i)
+        sum_value = sum_query.filter(Bill.date == target_date).first()
+        str_day = target_date.strftime("%m-%d")
+        day_sum.append((f"{str_day}", sum_value[0] if sum_value[0] else 0))
+    
+    # Calculate sum for each months
+    year, month = today.year, today.month
+    start_day = datetime(year, month, 1)
+    month_sum = []    
+    for i in range(5):
+        end_day = start_day + relativedelta(months=1)
+        query_result = sum_query.filter(Bill.date >= start_day, Bill.date < end_day).first()[0]
+        sum_value = query_result if query_result else 0
+        str_month = start_day.strftime("%b")
+        month_sum.append((f"{str_month}", sum_value))
+        start_day = start_day - relativedelta(months=1)
+    month_sum = month_sum[::-1]
+
     if request.method == 'POST':
-        form_keys = list(request.form.keys())
-        if 'edit-index' in form_keys:
+        if 'edit-id' in request.form:
             edit_or_delete_bill(request.form)
         else:
-            if 'submit' in form_keys:
-                day_budget = form.count_in_day_budget.data
-                week_budget = form.count_in_week_budget.data
-                month_budget = form.count_in_month_budget.data
-                print(f"budget in day, week, month: {day_budget}, {week_budget}, {month_budget}")
-            elif 'delete' in form_keys:
-                # TODO : Delete this category
-                print("Delete this category")
+            if 'submit' in request.form:
+                print("submit")
+                print(form.count_in_day.data)
+                count_records.count_in_day = form.count_in_day.data
+                count_records.count_in_week = form.count_in_week.data
+                count_records.count_in_month = form.count_in_month.data
+                db.session.commit()
+            elif 'delete' in request.form:
+                # TODO : Delete this category                
+                for bill in Bill.query.filter_by(category_id=category_id).all():
+                    safe_delete_bill(bill)
+                db.session.delete(Category.query.filter_by(category_id=category_id).first())
+                db.session.commit()
+                return redirect(url_for('home'))
             else:
-                # Nothing happend with POST method?
                 pass
         return redirect(url_for('category_page', category_id=category_id)) 
-    return render_template('category_page.html', title="Category", category=dummy_category[category_id-1][1], bills=bill_bracket, form=form)
+    return render_template('category_page.html', title=f"{category_name}", category=category_name, bills=bill_bracket, form=form, e_form=e_form, count_in_list=count_in_list, day_sum=day_sum, month_sum=month_sum)
 
+def check_delete_user_date_record(year, month):
+    check_record = User_date.query.filter_by(user_id=current_user.user_id, year=year, month=month).first()
+    if not check_record:
+        flash("Somthing wrong in the User date model", "danger")
+        return
+    elif check_record.count == 1:
+        db.session.delete(check_record)
+    else:
+        check_record.count -= 1
+    return
+
+def safe_delete_bill(bill):
+    old_year = bill.date.date().year
+    old_month = bill.date.date().month
+    check_delete_user_date_record(old_year, old_month)
+    db.session.delete(bill)

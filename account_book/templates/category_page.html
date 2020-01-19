@@ -13,36 +13,37 @@
     </div>
 
     <div class="form-group card-body card-background form-container">
-	<div class="row justify-content-center">
-	    <div class="col-md-5">
-		<p>Cost this 7 days: </p>
-		<canvas id="cost-day" width="800" height="600"></canvas>
-	    </div>
-	    <div class="col-md-5">
-		<p>Cost this month: </p>
-		<canvas id="cost-month" width="800" height="600"></canvas>
-	    </div>
-	</div>
-	<h3>Budget Counting: </h3>
 	<form method="POST" action="">
 	    {{ form.hidden_tag() }}
+	    <div class="row justify-content-center">
+		<div class="col-md-5">
+		    <p>Cost in last 7 days: </p>
+		    <canvas id="cost-day" width="800" height="600"></canvas>
+		</div>
+		<div class="col-md-5">
+		    <p>Cost in last 5 months: </p>
+		    <canvas id="cost-month" width="800" height="600"></canvas>
+		</div>
+	    </div>
+	    <h3>Budget Counting: </h3>
+
 	    <div class="form-check form-check-inline">
 		<!-- <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1" value="option1" checked> -->
-		{{ form.count_in_day_budget() }}
+		{{ form.count_in_day(checked=count_in_list[0]) }}
 		<label class="form-check-label">
 		    Count in Day Budget
 		</label>
 	    </div>
 	    <div class="form-check form-check-inline">
 		<!-- <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="option2"> -->
-		{{ form.count_in_week_budget() }}
+		{{ form.count_in_week(checked=count_in_list[1]) }}
 		<label class="form-check-label">
 		    Count in Week Budget
 		</label>
 	    </div>
 	    <div class="form-check form-check-inline">
 		<!-- <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios3" value="option2"> -->
-		{{ form.count_in_month_budget() }}
+		{{ form.count_in_month(checked=count_in_list[2]) }}
 		<label class="form-check-label">
 		    Count in Month Budget
 		</label>
@@ -51,31 +52,32 @@
 	    <!-- <button type="button" class="btn btn-info">Update</button> -->
 	    {{ form.submit(class="btn btn-info") }}
 	    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete-category-modal">Delete Category</button>
-
-    </div>
-    <!-- modal for delete catagory modal -->
-    <div class="modal fade" id="delete-category-modal" tabindex="-1" role="dialog" aria-labelledby="CategoryDeleteModalLabel" aria-hidden="true">
-	<div class="modal-dialog" role="document">
-	    <div class="modal-content">
-		<div class="modal-header modal-color-header">
-		    <h5 class="modal-title" id="DeleteBillModal">Delete Bill</h5>
-		    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-			<span aria-hidden="true">&times;</span>
-		    </button>
-		</div>
-		<div class="modal-body">
-		    Sure to delete "{{ category }}" category?
-		</div>
-		<div class="modal-footer">
-		    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-		    {{ form.delete(class="btn btn-danger") }}
-		    <!-- <button type="button" class="btn btn-danger">Delete</button> -->
+	    <div class="modal fade" id="delete-category-modal" tabindex="-1" role="dialog" aria-labelledby="CategoryDeleteModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+		    <div class="modal-content">
+			<div class="modal-header modal-color-header">
+			    <h5 class="modal-title" id="DeleteBillModal">Delete Bill</h5>
+			    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			    </button>
+			</div>
+			<div class="modal-body">
+			    Sure to delete "{{ category }}" category and all bills with {{category}}?
+			</div>
+			<div class="modal-footer">
+			    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+			    {{ form.delete(class="btn btn-danger", id="delete-category") }}
+			    <!-- <button type="button" class="btn btn-danger">Delete</button> -->
+			</div>
+		    </div>
 		</div>
 	    </div>
-	</form>
-	</div>
+    	</form>
     </div>
-    <!-- end for delete category modal -->
+    <!-- modal for delete catagory modal -->
+
+	<!-- end for delete category modal -->
+    {% if bills %}
     <div class="bill-container">
 	<table class="table">
 	    <thead>
@@ -90,90 +92,93 @@
 	    <tbody>
 		{% for bill in bills %}
 		<tr>
-		    <th scope="row">{{ bill.date_value }}</th>
-		    <td>{{ bill.category_value }}</td>
-		    <td>${{ bill.cost_value }}</td>
-		    <td>{{ bill.comment_value }}</td>
+		    <td style="display: none;">{{bill['id']}}</td>
+		    <th scope="row">{{ bill['date'] }}</th>
+		    <td>{{ bill['category'] }}</td>
+		    <td>${{ bill['amount'] }}</td>
+		    <td>{{ bill['comment'] }}</td>
 		    <td>
-			<button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#edit-{{bill.index_value}}-modal">Edit</button>
-			<button type="button" class="btn btn-outline-danger" data-toggle="modal" data-target="#delete-{{bill.index_value}}-modal">Delete</button>
+			<button type="button" class="btn btn-outline-info edit-btn" data-toggle="modal" data-target="#edit-bill-modal">Edit</button>
+			<button type="button" class="btn btn-outline-danger edit-btn" data-toggle="modal" data-target="#delete-bill-modal">Delete</button>
 		    </td>
 		</tr>
 		{% endfor %}
 	    </tbody>
 	</table>
     </div>
-    {% for bill in bills %}
+    {% endif %}
+</div>
 
-    <div class="modal fade" id="edit-{{bill.index_value}}-modal" tabindex="-1" role="dialog" aria-labelledby="EditModalLabel" aria-hidden="true">
+
+<form method="POST" action="">
+    {{ e_form.hidden_tag() }}
+    <div class="modal fade" id="edit-bill-modal" tabindex="-1" role="dialog" aria-labelledby="EditModalLabel" aria-hidden="true">
 	<div class="modal-dialog" role="document">
 	    <div class="modal-content">
 		<div class="modal-header modal-color-header">
-		    <h5 class="modal-title" id="EditBillModal">Edit Bill</h5>
+		    <h5 class="modal-title" id="exampleModalLabel">Edit Bill</h5>
 		    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
 			<span aria-hidden="true">&times;</span>
 		    </button>
 		</div>
 		<div class="modal-body">
-		    <form method="POST" action="">
-			<input type="hidden" name="edit-index" value="{{ bill.index_value }}">
-			<div class="form-group">
-			    {{ bill.cost.label(class="form-control-label") }}
-			    {% if bill.cost.errors %}
-			    {{ bill.cost(class="form-control is-invalid") }}
-			    <div class="finvalid-feedback">
-				{% for error in form.cost.errors %}
-				<span> {{ error }}</span>
-				{% endfor%}
-			    </div>
-			    {% else %}
-			    {{ bill.cost(class="form-control",value=bill.cost_value) }}
-			    {% endif %}
+		    <input type="hidden" id="edit-id" name="edit-id">
+		    <div class="form-group">
+			{{ e_form.cost.label(class="form-control-label") }}
+			{% if e_form.cost.errors %}
+			{{ e_form.cost(class="form-control", id="edit-amount") }}
+			<div class="finvalid-feedback">
+			    {% for error in e_form.cost.errors %}
+			    <span> {{ error }}</span>
+			    {% endfor%}
 			</div>
-			<div class="form-group">
-			    {{ bill.tax_bool.label(class="form-control-label") }}
-			    <div class="input-group">
-				<div class="input-group-prepend">
-				    <div class="input-group-text">
-					{{ bill.tax_bool() }}
-				    </div>
+			{% else %}
+			{{ e_form.cost(class="form-control", id="edit-amount") }}
+			{% endif %}
+		    </div>
+		    <div class="form-group">
+			{{ e_form.tax_bool.label(class="form-control-label") }}
+			<div class="input-group">
+			    <div class="input-group-prepend">
+				<div class="input-group-text">
+				    {{ e_form.tax_bool(id="edit-tax-bool") }}
 				</div>
-				{{ bill.tax_rate(class="form-control") }}
 			    </div>
+			    {{ e_form.tax_rate(class="form-control", id="edit-tax-rate") }}
 			</div>
-			<div class="form-group">
-			    {{ bill.category.label(class="form-control-label") }}
-			    {{ bill.category(class="form-control", value=bill.category_value) }}
+		    </div>
+		    <div class="form-group">
+			{{ e_form.category.label(class="form-control-label") }}
+			{{ e_form.category(class="form-control", id="edit-category") }}
+		    </div>
+		    <div class="form-group">
+			{{ e_form.date.label(class="form-control-label") }}
+			{{ e_form.date(class="form-control", id="edit-date") }}
+		    </div>
+		    <div class="form-group">
+			{{ e_form.comment.label(class="form=control-label") }}
+			{% if e_form.comment.errors %}
+			{{ e_form.comment(class="form-control", id="edit-comment") }}
+			<div class="invalid-feedback">
+			    {% for error in e_form.comment.errors %}
+			    <span> {{ error }}</span>
+			    {% endfor %}
 			</div>
-			<div class="form-group">
-			    {{ bill.date.label(class="form-control-label") }}
-			    {{ bill.date(class="form-control", value=bill.date_value) }}
-			</div>
-			<div class="form-group">
-			    {{ bill.comment.label(class="form=control-label") }}
-			    {% if bill.comment.errors %}
-			    {{ bill.comment(class="form-control is-invalid") }}
-			    <div class="invalid-feedback">
-				{% for error in bill.comment.errors %}
-				<span> {{ error }}</span>
-				{% endfor %}
-			    </div>
-			    {% else %}
-			    {{ bill.comment(class="form-control", value=bill.comment_value) }}
-			    {% endif %}
-			</div>
+			{% else %}
+			{{ e_form.comment(class="form-control", id="edit-comment") }}
+			{% endif %}
+		    </div>
 		</div>
 		<div class="modal-footer">
 		    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-		    {{ bill.update(class="btn btn-primary") }}
+		    {{ e_form.update(class="btn btn-primary") }}
 		</div>
-
 	    </div>
 	</div>
     </div>
     <!-- End Edit Bill Modal -->
     <!-- Bill Delete Modal -->
-    <div class="modal fade" id="delete-{{bill.index_value}}-modal" tabindex="-1" role="dialog" aria-labelledby="BillDeleteModalLabel" aria-hidden="true">
+    <div class="modal fade" id="delete-bill-modal" tabindex="-1" role="dialog" aria-labelledby="BillDeleteModalLabel" aria-hidden="true">
 	<div class="modal-dialog" role="document">
 	    <div class="modal-content">
 		<div class="modal-header modal-color-header">
@@ -187,32 +192,40 @@
 		</div>
 		<div class="modal-footer">
 		    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-		    {{ bill.delete(class="btn btn-danger") }}
-		    <!-- <button type="button" class="btn btn-danger">Delete</button> -->
+		    {{ e_form.delete(class="btn btn-danger") }}
 		</div>
-	    	    </form>
+
 	    </div>
 	</div>
     </div>
-    <!-- End Bill Delete Modal -->		
-    {% endfor %}
+</form>
 
-</div>
-
-
+<script>
+ $( ".edit-btn" ).bind("click", function(){
+     var resultArray = [];
+     $(this).parent().parent().children("td").each(function(){resultArray.push($(this).text());})
+     var date = $(this).parent().parent().children("th").text()
+     $("#edit-id").attr("value", resultArray[0]);
+     $("#edit-date").attr("value", date);
+     $('#edit-category').val(resultArray[1]);
+     $("#edit-amount").attr("value", resultArray[2].substring(1));
+     $("#edit-comment").attr("value", resultArray[3]);
+ });
+</script>
 
 <script>
  /*  Change it to function ???? */
  var costCanvas = document.getElementById("cost-day");
 
  var barData = {
-     labels: ["Africa", "Asia", "Europe", "Latin America", "North America"],
+     labels: [{% for i in day_sum %}"{{i[0]}}", {% endfor %}],
      datasets: [{
          barPercentage: 0.5,
          barThickness: 6,
          maxBarThickness: 8,
          minBarLength: 2,
-         data: [10, 20, 30, 40, 50]
+         data: [{% for i in day_sum %}{{i[1]}}, {% endfor %}],
+	 backgroundColor: ["#ffcfd3", "#ffd7b8", "#fffcbf", "#d9ffbf", "#bfffdb", "#dcd9ff", "#f3d9ff"]	 
      }]
  };
  
@@ -224,6 +237,9 @@
                  beginAtZero:true
              }
          }]
+     },
+     legend: {
+         display: false,
      }
  }
  
@@ -236,16 +252,19 @@
 </script>
 
 <script>
+ 
  var costCanvas = document.getElementById("cost-month");
 
  var barData = {
-     labels: ["Africa", "Asia", "Europe", "Latin America", "kkk"],
+     labels: [{% for i in month_sum %}"{{i[0]}}", {% endfor %}],
      datasets: [{
          barPercentage: 0.5,
          barThickness: 6,
          maxBarThickness: 8,
          minBarLength: 1,
-         data: [10, 20, 30, 40, 50]
+	 data: [{% for i in month_sum %}{{i[1]}}, {% endfor %}],
+	 /* 	 backgroundColor: ["#ffcfd3", "#ffd7b8", "#fffcbf", "#d9ffbf", "#bfffdb", "#dcd9ff", "#f3d9ff"]	 */
+	 backgroundColor: ["#f3d9ff", "#dcd9ff", "#bfffdb", "#d9ffbf", "#fffcbf"]
      }]
  };
 
@@ -257,6 +276,9 @@
                  beginAtZero:true
              }
          }]
+     },
+     legend: {
+         display: false,
      }
  }
 
@@ -264,7 +286,6 @@
      type: 'bar',
      data: barData,
      options: barOptions
-     
  });
  
 </script>
