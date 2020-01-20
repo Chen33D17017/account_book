@@ -214,79 +214,61 @@
 </script>
 
 <script>
- /*  Change it to function ???? */
- var costCanvas = document.getElementById("cost-day");
+ const bar = {
+     type: 'bar',
+     chartLabelDisplay: false,
+ };
 
- var barData = {
+ const categoryCostDay = {
+     data: [{% for i in day_sum %}{{i[1]}}, {% endfor %}],
      labels: [{% for i in day_sum %}"{{i[0]}}", {% endfor %}],
-     datasets: [{
-         barPercentage: 0.5,
-         barThickness: 6,
-         maxBarThickness: 8,
-         minBarLength: 2,
-         data: [{% for i in day_sum %}{{i[1]}}, {% endfor %}],
-	 backgroundColor: ["#ffcfd3", "#ffd7b8", "#fffcbf", "#d9ffbf", "#bfffdb", "#dcd9ff", "#f3d9ff"]	 
-     }]
  };
- 
 
- var barOptions = {
-     scales: {
-         yAxes: [{
-             ticks: {
-                 beginAtZero:true
-             }
-         }]
-     },
-     legend: {
-         display: false,
-     }
- }
- 
- var myBarChart = new Chart(costCanvas, {
-     type: 'bar',
-     data: barData,
-     options: barOptions
- });
- 
-</script>
+ const colorSchemaDay = d3.schemeSet3;
+ staticColorChart(bar, 'cost-day', categoryCostDay, colorSchemaDay);
 
-<script>
- 
- var costCanvas = document.getElementById("cost-month");
-
- var barData = {
+ const categoryCostMonth = {
+     data: [{% for i in month_sum %}{{i[1]}}, {% endfor %}],
      labels: [{% for i in month_sum %}"{{i[0]}}", {% endfor %}],
-     datasets: [{
-         barPercentage: 0.5,
-         barThickness: 6,
-         maxBarThickness: 8,
-         minBarLength: 1,
-	 data: [{% for i in month_sum %}{{i[1]}}, {% endfor %}],
-	 /* 	 backgroundColor: ["#ffcfd3", "#ffd7b8", "#fffcbf", "#d9ffbf", "#bfffdb", "#dcd9ff", "#f3d9ff"]	 */
-	 backgroundColor: ["#f3d9ff", "#dcd9ff", "#bfffdb", "#d9ffbf", "#fffcbf"]
-     }]
  };
+ const colorSchemaMonth = d3.schemePaired;
+ staticColorChart(bar, 'cost-month', categoryCostMonth, colorSchemaMonth);
+ 
+ 
+ 
+ /* var costCanvas = document.getElementById("cost-month");
+
+  * var barData = {
+  *     labels: [{% for i in month_sum %}"{{i[0]}}", {% endfor %}],
+  *     datasets: [{
+  *         barPercentage: 0.5,
+  *         barThickness: 6,
+  *         maxBarThickness: 8,
+  *         minBarLength: 1,
+    data: [{% for i in month_sum %}{{i[1]}}, {% endfor %}],
+    backgroundColor: ["#f3d9ff", "#dcd9ff", "#bfffdb", "#d9ffbf", "#fffcbf"]
+  *     }]
+  * };
 
 
- var barOptions = {
-     scales: {
-         yAxes: [{
-             ticks: {
-                 beginAtZero:true
-             }
-         }]
-     },
-     legend: {
-         display: false,
-     }
- }
+  * var barOptions = {
+  *     scales: {
+  *         yAxes: [{
+  *             ticks: {
+  *                 beginAtZero:true
+  *             }
+  *         }]
+  *     },
+  *     legend: {
+  *         display: false,
+  *     }
+  * }
 
- var myBarChart = new Chart(costCanvas, {
-     type: 'bar',
-     data: barData,
-     options: barOptions
- });
+  * var myBarChart = new Chart(costCanvas, {
+  *     type: 'bar',
+  *     data: barData,
+  *     options: barOptions
+  * });*/
  
 </script>
 {% endblock content%}

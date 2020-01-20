@@ -7,45 +7,56 @@
         src="{{ url_for('static', filename='raphael-2.1.4.min.js') }}"></script>
 
 
-<div class="container-fluid">
-    <div class="graph-container">
-	<div class="pt-3">
-	    <h3>Your limitation</h3>
+<div class="container-fluid pt-20">
+    <div class="page-content">
+	<div class="graph-container">
+	    <div class="pt-3">
+		<h3>Your limitation</h3>
+	    </div>
+	    <div class="row justify-content-center" id="justgage-container">
+		<div class="col-md-4">
+		    <div id="day-gauge" class="200x160px"></div>
+		</div>
+		<div class="col-md-4">
+		    <div id="week-gauge" class="200x160px"></div>
+		</div>
+		<div class="col-md-4">
+		    <div id="month-gauge" class="200x160px"></div>
+		</div>
+	    </div>
 	</div>
-	<div class="row justify-content-center" id="justgage-container">
-	    <div class="col-md-4">
-		<div id="day-gauge" class="200x160px"></div>
-	    </div>
-	    <div class="col-md-4">
-		<div id="week-gauge" class="200x160px"></div>
-	    </div>
-	    <div class="col-md-4">
-		<div id="month-gauge" class="200x160px"></div>
-	    </div>
-	</div>
-    </div>
 
-    <div class="graph-container mt-20">
-	<div class="pt-3">
-	    <h3>Situation</h3>
-	</div>
-	<div class="row justify-content-center" id="justgage-container">
-	    <div class="col-md-6">
-		<canvas id="day-cost"></canvas>
+	<div class="graph-container mt-20">
+	    <div class="pt-3">
+		<h3>Situation</h3>
 	    </div>
-	    <div class="col-md-6">
-		<canvas id="month-cost"></canvas>
+	    <div class="row justify-content-center" id="justgage-container">
+		<div class="col-md-6">
+		    <canvas id="day-cost"></canvas>
+		</div>
+		<div class="col-md-6">
+		    <canvas id="month-cost"></canvas>
+		</div>
 	    </div>
 	</div>
-    </div>
 
-    <div class="graph-container mt-20">
-	<div class="pt-3">
-	    <h3>Usage</h3>
-	</div>
-	<div class="row justify-content-center">
-	    <div class="col-md-6">
-		<canvas id="cost-usage"></canvas>
+	<div class="graph-container">
+	    <div class="pt-3">
+		<h3>Usage</h3>
+	    </div>
+	    <div class="row justify-content-center pb-3">
+		{% if group_show[0] %}
+		<div class="col-md-5">
+		    <p>Last month</p>
+		    <canvas id="last-month-usage"></canvas>
+		</div>
+		{% endif %}
+		{% if group_show[1] %}
+		<div class="col-md-5">
+		    <p>This month</p>
+		    <canvas id="this-month-usage"></canvas>
+		</div>
+		{% endif %}
 	    </div>
 	</div>
     </div>
@@ -56,19 +67,8 @@
 <!-- gagestaff -->
 <script>
  var g = new JustGage({
-     id: "test",
-     value: 67,
-     min: 0,
-     max: 100,
-     title: "Day"
- });
-</script>
-
-
-<script>
- var g = new JustGage({
      id: "day-gauge",
-     value: 2000,
+     value: {{ total_cost['day'] }},
      min: 0,
      max: 120000 / 30,
      title: "Day"
@@ -78,7 +78,7 @@
 <script>
  var g = new JustGage({
      id: "week-gauge",
-     value: 8000,
+     value: {{ total_cost['week'] }},
      min: 0,
      max: 120000 / 4,
      title: "Week"
@@ -88,7 +88,7 @@
 <script>
  var g = new JustGage({
      id: "month-gauge",
-     value: 80000,
+     value: {{ total_cost['month'] }},
      min: 0,
      max: 120000,
      title: "Month"
@@ -97,6 +97,7 @@
 
 <!-- Chat stuff -->
 <script>
+ var color = '#00743F';
  var ctx = document.getElementById('day-cost').getContext('2d');
  var chart = new Chart(ctx, {
      // The type of chart we want to create
@@ -104,12 +105,12 @@
 
      // The data for our dataset
      data: {
-         labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+	 labels: [{% for i in day_static[0] %}"{{i}}",{% endfor %}],
          datasets: [{
-             label: 'My First dataset',
-             backgroundColor: 'rgb(255, 99, 132)',
-             borderColor: 'rgb(255, 99, 132)',
-             data: [0, 10, 5, 2, 20, 30, 45]
+             label: '{{today.strftime("%B")}}',
+             backgroundColor: color,
+             borderColor: color,
+             data: [{% for i in day_static[1] %}{{i}},{% endfor %}]
          }]
      },
 
@@ -119,6 +120,7 @@
 </script>
 
 <script>
+ var color = "#F2A104";
  var ctx = document.getElementById('month-cost').getContext('2d');
  var chart = new Chart(ctx, {
      // The type of chart we want to create
@@ -126,12 +128,12 @@
 
      // The data for our dataset
      data: {
-         labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+	 labels: [{% for i in month_static[0] %}"{{i}}",{% endfor %}],
          datasets: [{
-             label: 'My First dataset',
-             backgroundColor: 'rgb(255, 99, 132)',
-             borderColor: 'rgb(255, 99, 132)',
-             data: [0, 10, 5, 2, 20, 30, 45]
+             label: '{{today.strftime("%Y")}}',
+             backgroundColor: color,
+             borderColor: color,
+             data: [{% for i in  month_static[1] %}{{i}},{% endfor %}]
          }]
      },
 
@@ -140,34 +142,30 @@
  });
 </script>
 
-<script>
- var oilCanvas = document.getElementById("cost-usage");
-
- var oilData = {
-     labels: [
-	 "Saudi Arabia",
-	 "Russia",
-	 "Iraq",
-	 "United Arab Emirates",
-	 "Canada"
-     ],
-     datasets: [
-	 {
-	     data: [133.3, 86.2, 52.2, 51.2, 50.2],
-	     backgroundColor: [
-		 "#FF6384",
-		 "#63FF84",
-		 "#84FF63",
-		 "#8463FF",
-		 "#6384FF"
-	     ]
-	 }]
+<script> 
+ const pie = {
+     type: 'pie',
+     chartLabelDisplay: true,
  };
 
- var pieChart = new Chart(oilCanvas, {
-     type: 'doughnut',
-     data: oilData
- });
+ {% if group_show[0] %}
+ const lastMonthGroup = {
+     labels: [{% for i in group_result['last_month'][0] %}"{{i}}",{% endfor %}],
+     data: [{% for i in group_result['last_month'][1] %}{{i}},{% endfor %}],
+ };
+ const lastMonthColor = d3.interpolateGnBu;
+ dynamicColorChart(pie,'last-month-usage', lastMonthGroup, lastMonthColor);
+ {% endif %}
+
+ {% if group_show[1]%}
+ const thisMonthGroup = {
+     labels: [{% for i in group_result['this_month'][0] %}"{{i}}",{% endfor %}],
+     data: [{% for i in group_result['this_month'][1] %}{{i}},{% endfor %}],
+ };
+ const thisMonthColor = d3.interpolateYlOrRd;
+ dynamicColorChart(pie,'this-month-usage', thisMonthGroup, thisMonthColor);
+ {% endif %}
+
 </script>
 
 {% endblock content%}
