@@ -192,9 +192,13 @@
 		 create_bill(obj.bills);
 	     }
 	     if(obj.hasOwnProperty('month_choices')){
+		 $("#search-month").empty();
 		 $("#search-month").append(`<option value="0"></option>`);
 		 for(var choice of obj.month_choices){
 		     $("#search-month").append(`<option value="${choice}">${choice}</option>`);
+		 }
+		 if(obj.hasOwnProperty('selected')){
+		     $("#search-month").val(obj.selected);
 		 }
 	     }
 	 }

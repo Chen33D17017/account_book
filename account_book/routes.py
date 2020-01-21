@@ -12,50 +12,9 @@ import json
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import func
 
-dummy_category = [( 1,'Food'), ( 2, 'Household good'), ( 3, 'Rent')]
-dummy_year = [(0, '-'), (1, '2019'), (2, '2018')]
-dummy_month = [(0, '-'), (1, '11'), (2, '12')]
-
-accounts = {'user': 'admin', 'password': 'admin'}
-
-dummy_user = {
-    'username' : 'Chen',
-    'month_budget' : 120000,
-    'email' : 'xxxxxx@gmail.com'
-}
-
-dummy_bill = [
-    {
-        'id': '1',
-        'user' : 'Chen',
-        'date' : '2020-11-20',
-        'category' : 'Food',
-        'cost' : '500',
-        'comment' : 'Mcdonald'
-    },
-    {
-        'id':'2',
-        'user' : 'Chen',
-        'date' : '2020-11-19',
-        'category' : 'Rent',
-        'cost' : '600',
-        'comment' : 'KFC'
-    },
-    {
-        'id':'3',
-        'user' : 'Chen',
-        'date' : '2020-11-12',
-        'category' : 'Food',
-        'cost' : '600',
-        'comment' : 'MOS Burger'
-    }
-]
-
-
 @app.context_processor
 def categories_list():
     return {} if not current_user.is_authenticated else dict(
-        # categories = dummy_category
         categories = [ (category.category_id, category.category_name) for category in Category.query.filter_by(owner_id=current_user.user_id).all()] 
     )
 
@@ -112,24 +71,27 @@ def logout():
 def home():
     # flash(f"Welcome Back, {current_user.name}", 'success')
     total_cost = {}
-    count_query = db.session.query(func.sum(Bill.amount)).join(Category).filter(Category.owner_id == 1)
+    sum_query = db.session.query(func.sum(Bill.amount)).join(Category).filter(Category.owner_id == 1)
     today = datetime.combine(date.today(), datetime.min.time())
-    day_cost_result = count_query.filter(Category.count_in_day == True, Bill.date == today).first()[0]
+    day_cost_result = sum_query.filter(Category.count_in_day == True, Bill.date == today).first()[0]
     total_cost['day'] = day_cost_result if day_cost_result else 0
 
     week_first_day = today - timedelta(days=today.weekday())
     week_last_day = today + timedelta(days=(7 - today.weekday()))
-    week_cost_result = count_query.filter(Category.count_in_week == True, Bill.date >= week_first_day, Bill.date < week_last_day).first()[0]
+    week_cost_result = sum_query.filter(Category.count_in_week == True, Bill.date >= week_first_day, Bill.date < week_last_day).first()[0]
     total_cost['week'] = week_cost_result if week_cost_result else 0
     
     this_month = datetime(today.year, today.month, 1)
     next_month = this_month + relativedelta(months=1)
-    month_cost_result = count_query.filter(Category.count_in_month == True, Bill.date >= this_month, Bill.date < next_month).first()[0]
+    month_cost_result = sum_query.filter(Category.count_in_month == True, Bill.date >= this_month, Bill.date < next_month).first()[0]
     total_cost['month'] = month_cost_result if month_cost_result else 0
 
+    sum_result = [0, 0]
     group_show = [False, False]
     group_result = {}
+
     cost_group_query = db.session.query(Category.category_name, func.sum(Bill.amount)).join(Category).filter(Category.owner_id == 1).group_by(Bill.category_id)
+    sum_result[1] = sum_query.filter(Bill.date >= this_month, Bill.date < next_month).first()[0]
     group_this_month = cost_group_query.filter(Bill.date >= this_month, Bill.date < next_month).all()
     if group_this_month:
         group_show[1] = True
@@ -138,6 +100,7 @@ def home():
         group_result['this_month'] = []
     
     last_month = this_month - relativedelta(months=1)
+    sum_result[0] = sum_query.filter(Bill.date >= last_month, Bill.date < this_month).first()[0]
     group_last_month = cost_group_query.filter(Bill.date >= last_month, Bill.date < this_month).all()
     if group_last_month:
         group_show[0]= True
@@ -149,7 +112,7 @@ def home():
     for i in range(1, 13, 1):
         start = datetime(date.today().year, i, 1)
         end = start + relativedelta(months=1)
-        month_cost = count_query.filter(Bill.date >= start, Bill.date < end).first()
+        month_cost = sum_query.filter(Bill.date >= start, Bill.date < end).first()
         month_static[0].append(start.strftime("%b"))
         month_static[1].append(month_cost[0] if month_cost[0] else 0)
 
@@ -158,11 +121,11 @@ def home():
     end_day = (datetime(today.year, today.month, 1) + relativedelta(months=1) - timedelta(days=1)).day
     for i in range(1, end_day+1, 1):
         day = datetime(today.year, today.month, i)
-        day_cost = count_query.filter(Bill.date == day).first()
+        day_cost = sum_query.filter(Bill.date == day).first()
         day_static[0].append(i)
         day_static[1].append(day_cost[0] if day_cost[0] else 0 )    
     
-    return render_template('home.html', title="Home", total_cost=total_cost, group_result=group_result, month_static=month_static, day_static=day_static, today=today, group_show=group_show)
+    return render_template('home.html', title="Home", total_cost=total_cost, group_result=group_result, month_static=month_static, day_static=day_static, today=today, group_show=group_show, sum_result=sum_result)
 
 def date_convert(date_data):
     min_time = datetime.min.time()
@@ -258,17 +221,17 @@ def _search_bill():
             search_date = date.fromisoformat(recieve_data['date'])
             search_date = datetime.combine(search_date, datetime.min.time())
             bills = bills.filter(Bill.date==search_date)
-        else:
-            if recieve_data['year']:
-                year = int(recieve_data['year'])
-                target_user_date = User_date.query.filter_by(user_id=current_user.user_id, year=year)
-                response['month_choices'] = [item.month for item in target_user_date.all()]
-                start_day, last_day = datetime(year, 1, 1), datetime(year+1, 1, 1)
-                if recieve_data['month']:
-                    month = int(recieve_data['month'])
-                    start_day = datetime(year, month, 1)
-                    last_day = start_day + relativedelta(months=1)
-                bills = bills.filter(Bill.date >= start_day, Bill.date < last_day)
+        elif recieve_data['year']:
+            year = int(recieve_data['year'])
+            target_user_date = User_date.query.filter_by(user_id=current_user.user_id, year=year)
+            response['month_choices'] = [item.month for item in target_user_date.all()]
+            start_day, last_day = datetime(year, 1, 1), datetime(year+1, 1, 1)
+            if recieve_data['month']:
+                month = int(recieve_data['month'])
+                start_day = datetime(year, month, 1)
+                last_day = start_day + relativedelta(months=1)
+                response['selected'] = month        
+            bills = bills.filter(Bill.date >= start_day, Bill.date < last_day)
     else:
         search_date = datetime.combine(date.today(), datetime.min.time())
         bills = bills.filter(Bill.date==search_date)
@@ -294,35 +257,33 @@ def search_bill():
 @app.route("/user_profile", methods=['POST', 'GET'])
 @login_required
 def user_profile():
+    update = False
     user_form = UserProfileForm()
     password_form = ChangePasswordForm()
     if user_form.validate_on_submit():
-        print(user_form.picture)
-        print(user_form.picture.data)
         if user_form.picture.data:
-           picture_file = save_picture(user_form.picture.data)
-           # delete_old_pic(current_user.image_file)
-           image_file = picture_file
-        username = user_form.username.data
-        email = user_form.email.data
-        month_budget = user_form.month_budget.data
-        slack_token = user_form.slack_token.data
-        print(f"username: {username}")
-        print(f"email: {email}")
-        print(f"month_budget: {month_budget}")
-        print(f"slack_token: {slack_token}")
-        # TODO: Save data into database
-        # flash(" Your account has been updated! ", "success")
+            picture_file = save_picture(user_form.picture.data)
+            delete_old_pic(current_user.image_file)
+            current_user.image_file = picture_file
+        current_user.name = user_form.name.data
+        current_user.email = user_form.email.data
+        current_user.month_budget = user_form.month_budget.data
+        current_user.week_budget = user_form.week_budget.data
+        current_user.day_budget = user_form.day_budget.data
+        db.session.commit()
+        flash(" Your account has been updated! ", "success")
         return redirect(url_for('user_profile'))
     if password_form.validate_on_submit():
         password = password_form.password.data
-        confirm_password = password_form.confirm_password.data
-        print(f"password : {password}")
-        print(f"confirm_password : {confirm_password}")
-        return redirect(url_for('user_profile'))
+        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+        current_user.password = hashed_password
+        db.session.commit()
+        flash(" Your account has been updated! ", "success")
+        
+        return redirect(url_for('home'))
     # TODO: Direct to the home page
     return render_template('user_profile.html', user_form=user_form, \
-                           password_form=password_form, title="User Profile", user=dummy_user)
+                           password_form=password_form, title="User Profile", user=current_user)
 
 def absolute_path(path):
     return os.path.join(current_app.root_path, 'static/profile_pics', path)
@@ -339,7 +300,7 @@ def save_picture(form_picture):
     picture_fn = random_hex + f_ext
     create_dir(os.path.join(current_app.root_path, 'static/profile_pics'))
     picture_path = absolute_path(picture_fn)
-    output_size = (125, 125)
+    output_size = (200, 200)
     i = Image.open(form_picture)
     i.thumbnail(output_size)
     i.save(picture_path)

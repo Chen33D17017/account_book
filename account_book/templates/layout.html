@@ -50,7 +50,7 @@
                     <strong>AB</strong>
 		</div>
 
-		<img src="../static/PIC/layout/dio.jpg" alt="user_img" class="user-img"/>
+		<img src="{{ url_for('static', filename='profile_pics/' + current_user.image_file )}}" alt="user_img" class="user-img"/>
 		<div class="sidebar-header">
 		    <h4>{{current_user.name}}</h4>
 		    <strong>C</strong>

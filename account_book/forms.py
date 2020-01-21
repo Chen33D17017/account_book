@@ -4,8 +4,7 @@ from wtforms import StringField, PasswordField, SubmitField, BooleanField, Integ
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from wtforms.fields.html5 import DateField
 from account_book.model import User
-
-#from flask_login import current_user
+from flask_login import current_user
 
 class LoginForm(FlaskForm):
     username = StringField('User Account', validators=[DataRequired()])
@@ -69,23 +68,20 @@ class EditBillForm(FlaskForm):
     
         
 class UserProfileForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired()])
+    name = StringField('Your name', validators=[DataRequired()])
     email = StringField('Email', validators=[DataRequired(), Email()])
+    day_budget = IntegerField('Day Budget', validators=[DataRequired()])
+    week_budget = IntegerField('Week Budget', validators=[DataRequired()])
     month_budget = IntegerField('Month Budget', validators=[DataRequired()])
-    picture = FileField('Update Profile Picture', validators=[FileAllowed(['jpg', 'png'])])
-    slack_token = StringField('Slack Token')
-    submit = SubmitField('Update')
-    # def validate_username(serf, username):
-    #     if username.data != current_user.username:
-    #         user = User.query.filter_by(username=username.data).first()
-    #         if user:
-    #             raise ValidationError('That username is taken. Please choose another name')
 
-    # def validate_email(self, email):
-    #     if email.data != current_user.email:
-    #         user = User.query.filter_by(email=email.data).first()
-    #         if user:
-    #             raise ValidationError('That username is taken. Please choose another name')
+    picture = FileField('Update Profile Picture', validators=[FileAllowed(['jpg', 'png'])])
+    submit = SubmitField('Update')
+            
+    def validate_email(self, email):
+        if email.data != current_user.email:
+            user = User.query.filter_by(email=email.data).first()
+            if user:
+                raise ValidationError('That username is taken. Please choose another name')
 
 class ChangePasswordForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])

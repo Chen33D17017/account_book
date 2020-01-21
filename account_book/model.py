@@ -16,7 +16,9 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(120), unique=True, nullable=False)
     image_file = db.Column(db.String(20), nullable=False, default='default.jpg')
     password = db.Column(db.String(60), nullable=False)
-    budget = db.Column(db.Integer, nullable=False, default=120000)
+    month_budget = db.Column(db.Integer, nullable=False, default=120000)
+    week_budget = db.Column(db.Integer, nullable=False, default=30000)
+    day_budget = db.Column(db.Integer, nullable=False, default=4000)
     slacktoken = db.Column(db.String(60))
 
     categories = db.relationship('Category', backref='owner', lazy=True)

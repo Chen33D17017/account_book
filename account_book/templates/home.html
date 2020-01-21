@@ -11,7 +11,7 @@
     <div class="page-content">
 	<div class="graph-container">
 	    <div class="pt-3">
-		<h3>Your limitation</h3>
+		<h1>Your limitation</h1>
 	    </div>
 	    <div class="row justify-content-center" id="justgage-container">
 		<div class="col-md-4">
@@ -28,7 +28,7 @@
 
 	<div class="graph-container mt-20">
 	    <div class="pt-3">
-		<h3>Situation</h3>
+		<h1>Situation</h1>
 	    </div>
 	    <div class="row justify-content-center" id="justgage-container">
 		<div class="col-md-6">
@@ -41,23 +41,25 @@
 	</div>
 
 	<div class="graph-container">
+	    {% if group_show[0] or group_show[1]%}
 	    <div class="pt-3">
-		<h3>Usage</h3>
+		<h1>Usage</h1>
 	    </div>
 	    <div class="row justify-content-center pb-3">
 		{% if group_show[0] %}
 		<div class="col-md-5">
-		    <p>Last month</p>
+		    <p>Last month;</br><h2>${{sum_result[0]}}</h2></p>
 		    <canvas id="last-month-usage"></canvas>
 		</div>
 		{% endif %}
 		{% if group_show[1] %}
 		<div class="col-md-5">
-		    <p>This month</p>
+		    <p>This month:</br><h2>${{sum_result[1]}}</h2></p>
 		    <canvas id="this-month-usage"></canvas>
 		</div>
 		{% endif %}
 	    </div>
+	    {% endif %}
 	</div>
     </div>
 </div>
