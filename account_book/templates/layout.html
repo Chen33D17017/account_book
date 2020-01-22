@@ -11,8 +11,10 @@
 	<!-- Bootstrap CSS CDN -->
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
 	<!-- Our Custom CSS -->
-	<link rel="stylesheet" href="../static/CSS/layout.css">
-	<link rel="stylesheet" type="text/css" href="../static/main.css">
+	<!-- <link rel="stylesheet" href="../static/CSS/layout.css"> -->
+	<link rel="stylesheet" href="{{url_for('static', filename='CSS/layout.css' )}}">
+	<!-- <link rel="stylesheet" type="text/css" href="../static/main.css"> -->
+	<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='main.css' )}}">
 
 	<!-- Font Awesome JS -->
 	<script defer src="https://use.fontawesome.com/releases/v5.0.13/js/solid.js" integrity="sha384-tzzSw1/Vo+0N5UhStP3bvwWPq+uvzCMfrN1fEFe+xBmv1C/AtVX5K0uZtmcHitFZ" crossorigin="anonymous"></script>
@@ -36,7 +38,7 @@
 	<script src="https://d3js.org/d3-interpolate.v1.min.js"></script>
 	<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
 
-	<script src="{{url_for('static', filename='util.js' )}}"></script>
+	<script src="{{url_for('static', filename='utils.js' )}}"></script>
 
     </head>
 
@@ -57,13 +59,13 @@
 		</div>
 		<ul class="list-unstyled components">
                     <li>
-			<a href={{ url_for('home')}}>
+			<a href={{ url_for('main.home')}}>
                             <i class="fas fa-briefcase"></i>
                             Summary
 			</a>
                     </li>
                     <li>
-			<a href={{ url_for('user_profile')}}>
+			<a href={{ url_for('users.user_profile')}}>
                             <i class="fas fa-address-book"></i>
                             Portfile
 			</a>
@@ -76,7 +78,7 @@
 			<ul class="collapse list-unstyled" id="pageSubmenu">
 			    {% for category in categories%}
 			    <li>
-				<a href={{ url_for('category_page', category_id=category[0]) }}> {{ category[1] }}</a>
+				<a href={{ url_for('bills.category_page', category_id=category[0]) }}> {{ category[1] }}</a>
 			    </li>
 			    {% endfor %}
 			</ul>
@@ -105,17 +107,17 @@
                                      <a class="nav-link" href="#">Home</a>
 				     </li> -->
 				<li class="nav-item">
-                                    <a class="nav-link" href={{ url_for('home')}}>Home</a>
+                                    <a class="nav-link" href={{ url_for('main.home')}}>Home</a>
 				</li>
 
 				<li class="nav-item">
-                                    <a class="nav-link" href={{ url_for('add_bill')}}>Add Bill</a>
+                                    <a class="nav-link" href={{ url_for('bills.add_bill')}}>Add Bill</a>
 				</li>
 				<li class="nav-item">
-                                    <a class="nav-link" href={{ url_for('search_bill' )}}>Search Bill</a>
+                                    <a class="nav-link" href={{ url_for('bills.search_bill' )}}>Search Bill</a>
 				</li>
 				<li class="nav-item">
-                                    <a class="nav-link" href={{ url_for('logout')}}>Logout</a>
+                                    <a class="nav-link" href={{ url_for('users.logout')}}>Logout</a>
 				</li>
                             </ul>
 			</div>

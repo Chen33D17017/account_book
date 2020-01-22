@@ -31,7 +31,7 @@ Chart.pluginService.register({
 	    var txt = centerConfig.text;
             var color = centerConfig.color || '#000';
             var sidePadding = centerConfig.sidePadding || 20;
-            var sidePaddingCalculated = (sidePadding/100) * (chart.innerRadius * 2);
+            var sidePaddingCalculated = (sidePadding/100) * (chart.innerRadius * 2)
             //Start with a base font of 30px
             ctx.font = "30px " + fontStyle;
             
@@ -104,19 +104,21 @@ function createChart(chartType, chartData, chartId, COLORS){
 	    legend: {
 		display: chartType.chartLabelDisplay,
 	    },
-	    hover: {
-		onHover: function(e) {
-		    var point = this.getElementAtEvent(e);
-		    e.target.style.cursor = point.length ? 'pointer' : 'default';
-		},
+	    onClick: function (e, el) {
+		if (! el || el.length === 0) return;
+		console.log('onClick : label ' + el[0]._model.label);
+            },
+	    onHover: function(e) {
+		var point = this.getElementAtEvent(e);
+		e.target.style.cursor = point.length ? 'pointer' : 'default';
 	    },
 	    elements: {
 		center: {
-		    text: chartType.centerText,
-		    color: chartType.centerDispalyColor, // Default is #000000
+		    text: chartData.centerText,
+		    color: chartData.centerDisplayColor, // Default is #000000
 		    fontStyle: 'Arial', // Default is Arial
 		    sidePadding: 20, // Defualt is 20 (as a percentage)
-		    display: chartType.centerDislay,
+		    display: chartData.centerDisplay,
 		}
 	    }
 	}
@@ -154,8 +156,4 @@ function staticColorChart(chartType, chartId, chartData, colorSchema) {
 
     /* Create chart */
     return createChart(chartType, chartData, chartId, COLORS);
-}
-
-function getRandomNumber(min, max) {
-    return Math.round(Math.random() * (max - min) + min);
 }

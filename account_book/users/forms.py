@@ -1,15 +1,14 @@
 from flask_wtf import FlaskForm
-from flask_wtf.file import FileField, FileAllowed
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, IntegerField, SelectField, FloatField, TextField, IntegerField
-from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
-from wtforms.fields.html5 import DateField
 from account_book.model import User
 from flask_login import current_user
+from flask_wtf.file import FileField, FileAllowed
+from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, IntegerField
 
 class LoginForm(FlaskForm):
     username = StringField('User Account', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
-    remember = BooleanField('Remenber Me')
+    remember = BooleanField('Remember Me')
     submit = SubmitField('Submit')
     
     def validate_username(self, username):
@@ -36,37 +35,7 @@ class RegistrationForm(FlaskForm):
         user = User.query.filter_by(email=email.data).first()
         if user:
             raise ValidationError('That email is taken. Please choose another name')
-    
-class BillInputForm(FlaskForm):
-    cost = IntegerField('Cost', validators=[DataRequired()], render_kw={"placeholder": "$"})
-    category = SelectField('Category')
-    comment = StringField('Comment', validators=[DataRequired()], render_kw={"placeholder": "Dinner: KFC"})
-    tax_rate = FloatField('Tax rate',default=0.08, render_kw={"placeholder": "Tax Rate"})
-    tax_bool = BooleanField('Tax')
-    date = DateField('Date', validators=[DataRequired()])
-    submit = SubmitField('Submit')
 
-class NewCategoryForm(FlaskForm):
-    category = StringField('New :', validators=[DataRequired()], render_kw={"placeholder" : "Category"})
-    submit = SubmitField('Add')
-
-    def validate_add_category(self, category):
-        category = Category.query.filter_by(category_name=category).first()
-        if category:
-            raise ValidationError('Category already existed')
-
-    
-class EditBillForm(FlaskForm):
-    cost = IntegerField("COST",validators=[DataRequired()], render_kw={"placeholder": "$"})
-    category = SelectField('Category')
-    comment = TextField('Comment', validators=[DataRequired()], render_kw={"placeholder": "Dinner: KFC"})
-    tax_rate = FloatField('Tax rate',default=0.08, render_kw={"placeholder": "Tax Rate"})
-    tax_bool = BooleanField('Tax')
-    date = DateField('Date', format='%Y-%m-%d', validators=[DataRequired()])
-    update = SubmitField('Update')
-    delete = SubmitField('Delete')
-    
-        
 class UserProfileForm(FlaskForm):
     name = StringField('Your name', validators=[DataRequired()])
     email = StringField('Email', validators=[DataRequired(), Email()])
@@ -88,11 +57,3 @@ class ChangePasswordForm(FlaskForm):
     confirm_password = PasswordField('Confirm Password', 
             validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField('Update')
-
-class ChangeCategoryOption(FlaskForm):
-    count_in_day = BooleanField('Count in Day Budget')
-    count_in_week = BooleanField('Count in Week Budget')
-    count_in_month = BooleanField('Count in Month Budget')
-    submit = SubmitField('Update')
-    delete = SubmitField('Delete')
-    

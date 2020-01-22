@@ -65,7 +65,7 @@
 	<div class="modal-dialog" role="document">
 	    <div class="modal-content">
 		<div class="modal-header modal-color-header">
-		    <h5 class="modal-title" id="exampleModalLabel">Edit Bill</h5>
+		    <h5 class="modal-title" id="editModalTitle">Edit Bill</h5>
 		    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
 			<span aria-hidden="true">&times;</span>
 		    </button>
@@ -132,7 +132,7 @@
 	<div class="modal-dialog" role="document">
 	    <div class="modal-content">
 		<div class="modal-header modal-color-header">
-		    <h5 class="modal-title" id="exampleModalLabel">Delete Bill</h5>
+		    <h5 class="modal-title" id="billDeleteModalTitle">Delete Bill</h5>
 		    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
 			<span aria-hidden="true">&times;</span>
 		    </button>
@@ -180,7 +180,7 @@
      }
      $.ajax({
 	 type : 'POST',
-	 url : "{{url_for('_search_bill')}}",
+	 url : "{{url_for('bills._search_bill')}}",
 	 data : JSON.stringify(condition),
 	 contentType: 'application/json;charset=UTF-8',
 	 success: function(result) {
