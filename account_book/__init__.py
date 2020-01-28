@@ -27,3 +27,6 @@ from account_book.main.routes import main
 app.register_blueprint(users)
 app.register_blueprint(bills)
 app.register_blueprint(main)
+
+if __name__ == "__main__":
+    app.run()
