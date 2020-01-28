@@ -60,6 +60,7 @@ def add_bill():
                 flash("Success to Add Bill", "success")
             if form_name == 'add-category':
                 new_category = c_form.category.data
+                print(new_category)
                 db_add(Category(category_name=new_category, owner_id=current_user.user_id))
                 flash("Success to Add New Category", "success")
         if 'edit-id' in request.form:

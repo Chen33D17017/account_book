@@ -7,6 +7,7 @@ from account_book.config import Config
 
 app = Flask(__name__)
 app.config.from_object(Config)
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 # import secrets
 # secrets.token_hex(16)
 
