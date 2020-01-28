@@ -1,5 +1,5 @@
 from account_book import db
-from datetime import date
+from datetime import date, datetime
 from account_book.model import Bill, Category, User_date
 from flask import flash
 from flask_login import current_user
@@ -14,7 +14,7 @@ def edit_or_delete_bill(request_form):
         target_bill.amount = int((1 + float(request_form['tax_rate'])) * int(request_form['cost'])) \
             if 'tax_bool' in request_form else int(request_form['cost'])
         target_bill.category_id = Category.query.filter_by(category_name=request_form['category'], owner_id=current_user.user_id).first().category_id
-        new_date = date.fromisoformat(request_form['date'])
+        new_date = datetime.strptime(request_form['date'], "%Y-%m-%d")
         if new_date.year != old_year or new_date.month != old_month:
             check_delete_user_date_record(old_year, old_month)
             search_records = User_date.query.\

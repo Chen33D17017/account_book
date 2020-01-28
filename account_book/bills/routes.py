@@ -72,15 +72,15 @@ def add_bill():
 @bills.route('/_search_bill', methods=["POST"])
 def _search_bill():
     recieve_data = json.loads(request.data)
-    print(recieve_data)
     response = {}
     bills = Bill.query.join(Category).filter_by(owner_id=current_user.user_id)
     if 'category' in recieve_data:
         category = recieve_data['category']
         bills = bills.filter_by(category_name=category) if category else bills
         if recieve_data['date']:
-            search_date = date.fromisoformat(recieve_data['date'])
-            search_date = datetime.combine(search_date, datetime.min.time())
+            search_date = datetime.strptime(recieve_data['date'], "%Y-%m-%d")
+            # search_date = date.fromisoformat(recieve_data['d::ate'])
+            # search_date = datetime.combine(search_date, datetime.min.time())
             bills = bills.filter(Bill.date==search_date)
         elif recieve_data['year']:
             year = int(recieve_data['year'])
