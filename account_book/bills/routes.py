@@ -25,8 +25,8 @@ def add_bill():
     e_form.category.choices = category_choices
     today = datetime.combine(datetime.utcnow().date(), datetime.min.time())
     tomorrow = today + timedelta(days=1)
-    bill_add_today = Bill.query.filter(Bill.add_date >= today, Bill.add_date < tomorrow)\
-        .order_by(Bill.date.desc()).all()
+    bill_add_today = db.session.query(Bill).join(Category).filter(Bill.add_date >= today, Bill.add_date < tomorrow, Category.owner_id==current_user.user_id).\
+                     order_by(Bill.date.desc()).all()
     bill_bracket = []
     for i in bill_add_today:
         tmp = {
@@ -46,7 +46,7 @@ def add_bill():
                 cost = int((1 + float(form.tax_rate.data)) * form.cost.data) \
                     if form.tax_bool.data else int(form.cost.data)
                 category = form.category.data
-                category = Category.query.filter_by(category_name=category).first().category_id
+                category = Category.query.filter_by(category_name=category, owner_id=current_user.user_id).first().category_id
                 bill_date = form.date.data
                 comment = form.comment.data
                 user_date = User_date.query.\
@@ -72,8 +72,9 @@ def add_bill():
 @bills.route('/_search_bill', methods=["POST"])
 def _search_bill():
     recieve_data = json.loads(request.data)
+    print(recieve_data)
     response = {}
-    bills = Bill.query.join(Category).filter_by(owner_id=1)
+    bills = Bill.query.join(Category).filter_by(owner_id=current_user.user_id)
     if 'category' in recieve_data:
         category = recieve_data['category']
         bills = bills.filter_by(category_name=category) if category else bills

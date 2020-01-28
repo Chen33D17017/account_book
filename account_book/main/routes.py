@@ -23,7 +23,7 @@ def categories_list():
 @login_required
 def home():
     total_cost = {}
-    sum_query = db.session.query(func.sum(Bill.amount)).join(Category).filter(Category.owner_id == 1)
+    sum_query = db.session.query(func.sum(Bill.amount)).join(Category).filter(Category.owner_id == current_user.user_id)
     today = datetime.combine(date.today(), datetime.min.time())
     day_cost_result = sum_query.filter(Category.count_in_day == True, Bill.date == today).first()[0]
     total_cost['day'] = day_cost_result if day_cost_result else 0
@@ -45,7 +45,7 @@ def home():
     group_result = {}
 
     cost_group_query = db.session.query(Category.category_name, func.sum(Bill.amount)).join(Category)\
-        .filter(Category.owner_id == 1).group_by(Bill.category_id)
+        .filter(Category.owner_id == current_user.user_id).group_by(Bill.category_id)
     sum_result[1] = sum_query.filter(Bill.date >= this_month, Bill.date < next_month).first()[0]
     group_this_month = cost_group_query.filter(Bill.date >= this_month, Bill.date < next_month).all()
     if group_this_month:
