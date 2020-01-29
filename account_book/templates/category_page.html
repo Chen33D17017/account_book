@@ -78,7 +78,7 @@
 
 	<!-- end for delete category modal -->
     {% if bills %}
-    <div class="bill-container">
+    <div class="bill-container table-responsive">
 	<table class="table">
 	    <thead>
 		<tr>
@@ -93,11 +93,11 @@
 		{% for bill in bills %}
 		<tr>
 		    <td style="display: none;">{{bill['id']}}</td>
-		    <th scope="row">{{ bill['date'] }}</th>
+		    <th class="text-nowrap" scope="row">{{ bill['date'] }}</th>
 		    <td>{{ bill['category'] }}</td>
 		    <td>${{ bill['amount'] }}</td>
 		    <td>{{ bill['comment'] }}</td>
-		    <td>
+		    <td class="text-nowrap">
 			<button type="button" class="btn btn-outline-info edit-btn" data-toggle="modal" data-target="#edit-bill-modal">Edit</button>
 			<button type="button" class="btn btn-outline-danger edit-btn" data-toggle="modal" data-target="#delete-bill-modal">Delete</button>
 		    </td>

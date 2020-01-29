@@ -51,7 +51,7 @@
 	</div>
     </div>
 
-    <div class="bill-container">
+    <div class="bill-container table-responsive">
 	<table class="table mb-0">
 	</table>
     </div>
@@ -231,11 +231,11 @@
 	 $("#bill-list").append(`
 <tr>
 <td style="display: none;">${i.id}</td>
-     <th scope="row">${i.date}</th>
+     <th class="text-nowrap" scope="row">${i.date}</th>
      <td>${i.category}</td>
      <td>$${i.amount}</td>
      <td>${i.comment}</td>
-     <td>
+     <td class="text-nowrap">
      <button type="button" class="btn btn-outline-info edit-btn" data-toggle="modal" data-target="#edit-bill-modal">Edit</button>
      <button type="button" class="btn btn-outline-danger edit-btn" data-toggle="modal" data-target="#delete-bill-modal">Delete</button>
      </td>
