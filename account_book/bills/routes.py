@@ -67,7 +67,7 @@ def add_bill():
             edit_or_delete_bill(request.form)
         return redirect(url_for('bills.add_bill'))
     return render_template('add_bill.html', form=form, c_form=c_form,
-                           bills=bill_bracket, e_form=e_form, title="Add Bill")
+                           bills=bill_bracket, e_form=e_form, title="Add Bill", today=f"{date.today()}")
 
 
 @bills.route('/_search_bill', methods=["POST"])
