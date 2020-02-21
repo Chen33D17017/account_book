@@ -155,7 +155,7 @@
      labels: [{% for i in group_result['last_month'][0] %}"{{i}}",{% endfor %}],
      data: [{% for i in group_result['last_month'][1] %}{{i}},{% endfor %}],
      centerDisplay: true,
-     centerText: '${{sum_result[0]}}',
+     centerText: '&#165;{{sum_result[0]}}',
      centerDisplayColor: "#000000",
  };
  const lastMonthColor = d3.interpolateGnBu;

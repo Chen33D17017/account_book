@@ -5,7 +5,7 @@ from wtforms.fields.html5 import DateField
 from account_book.model import Category
 
 class BillInputForm(FlaskForm):
-    cost = IntegerField('Cost', validators=[DataRequired()], render_kw={"placeholder": "$"})
+    cost = IntegerField('Cost', validators=[DataRequired()], render_kw={"placeholder": "&#165;"})
     category = SelectField('Category')
     comment = StringField('Comment', validators=[DataRequired()], render_kw={"placeholder": "Dinner: KFC"})
     tax_rate = FloatField('Tax rate',default=0.08, render_kw={"placeholder": "Tax Rate"})
